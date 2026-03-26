@@ -1,0 +1,3437 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EduTrack SMS — Student Management System</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&family=Noto+Serif+Khmer:wght@400;600&display=swap"
+    rel="stylesheet">
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+  <style>
+    /* ═══════════════════════════════════════════════════════════
+   CSS CUSTOM PROPERTIES
+═══════════════════════════════════════════════════════════ */
+    :root {
+      /* Brand */
+      --primary: #1a3a5c;
+      --primary-light: #2a5298;
+      --accent: #e8a020;
+      --accent-light: #f5c842;
+      --success: #1b9e6e;
+      --danger: #d94040;
+      --warning: #e8a020;
+      --info: #0ea5e9;
+
+      /* Layout */
+      --sidebar-w: 260px;
+      --header-h: 64px;
+
+      /* Light theme */
+      --bg: #f0f4f8;
+      --card-bg: #ffffff;
+      --sidebar-bg: #0f2744;
+      --sidebar-text: #c8d8e8;
+      --sidebar-hover: rgba(255, 255, 255, .08);
+      --sidebar-active: #e8a020;
+      --text: #1a2744;
+      --text-muted: #637085;
+      --border: #dde3ec;
+      --input-bg: #f8fafc;
+      --shadow: 0 2px 12px rgba(0, 0, 0, .08);
+      --shadow-md: 0 6px 24px rgba(0, 0, 0, .12);
+    }
+
+    [data-theme="dark"] {
+      --bg: #0d1b2a;
+      --card-bg: #162233;
+      --sidebar-bg: #0a1520;
+      --sidebar-text: #8faac2;
+      --sidebar-hover: rgba(255, 255, 255, .06);
+      --text: #e2eaf4;
+      --text-muted: #7a93aa;
+      --border: #1e3048;
+      --input-bg: #1a2d42;
+      --shadow: 0 2px 12px rgba(0, 0, 0, .3);
+      --shadow-md: 0 6px 24px rgba(0, 0, 0, .4);
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+   BASE
+═══════════════════════════════════════════════════════════ */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      transition: background .3s, color .3s;
+      overflow-x: hidden;
+    }
+
+    .khmer {
+      font-family: 'Noto Serif Khmer', serif;
+    }
+
+    .display-font {
+      font-family: 'Playfair Display', serif;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+   LOGIN PAGE
+═══════════════════════════════════════════════════════════ */
+    #loginPage {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f2744 0%, #1a3a5c 40%, #0e3a2a 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #loginPage::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 20% 30%, rgba(232, 160, 32, .15) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 60% at 80% 70%, rgba(42, 82, 152, .25) 0%, transparent 70%);
+    }
+
+    /* Animated orbs */
+    .login-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+      animation: floatOrb 8s ease-in-out infinite;
+    }
+
+    .login-orb:nth-child(1) {
+      width: 300px;
+      height: 300px;
+      top: -80px;
+      right: -50px;
+      background: rgba(232, 160, 32, .2);
+      animation-delay: 0s;
+    }
+
+    .login-orb:nth-child(2) {
+      width: 200px;
+      height: 200px;
+      bottom: -40px;
+      left: -60px;
+      background: rgba(42, 82, 152, .25);
+      animation-delay: -3s;
+    }
+
+    @keyframes floatOrb {
+
+      0%,
+      100% {
+        transform: translateY(0) scale(1);
+      }
+
+      50% {
+        transform: translateY(-20px) scale(1.05);
+      }
+    }
+
+    .login-card {
+      background: rgba(255, 255, 255, .07);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, .12);
+      border-radius: 20px;
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 420px;
+      position: relative;
+      z-index: 1;
+      animation: slideUp .5s cubic-bezier(.16, 1, .3, 1);
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .login-logo {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-light));
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      margin: 0 auto 1.5rem;
+      box-shadow: 0 8px 20px rgba(232, 160, 32, .4);
+    }
+
+    .login-card h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      color: #fff;
+      text-align: center;
+      margin-bottom: .25rem;
+    }
+
+    .login-card .subtitle {
+      color: rgba(255, 255, 255, .55);
+      text-align: center;
+      font-size: .875rem;
+      margin-bottom: 2rem;
+    }
+
+    .role-tabs {
+      display: flex;
+      gap: .5rem;
+      background: rgba(0, 0, 0, .2);
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 1.5rem;
+    }
+
+    .role-tab {
+      flex: 1;
+      padding: .4rem;
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, .5);
+      border-radius: 7px;
+      font-size: .8rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all .2s;
+    }
+
+    .role-tab.active {
+      background: var(--accent);
+      color: #0f2744;
+      font-weight: 600;
+    }
+
+    .login-input {
+      background: rgba(255, 255, 255, .08);
+      border: 1px solid rgba(255, 255, 255, .15);
+      border-radius: 10px;
+      color: #fff;
+      padding: .75rem 1rem;
+      width: 100%;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .9rem;
+      transition: border .2s, background .2s;
+      margin-bottom: 1rem;
+    }
+
+    .login-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: rgba(255, 255, 255, .12);
+    }
+
+    .login-input::placeholder {
+      color: rgba(255, 255, 255, .35);
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: .8rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent-light));
+      border: none;
+      border-radius: 10px;
+      color: #0f2744;
+      font-weight: 700;
+      font-size: .95rem;
+      cursor: pointer;
+      transition: transform .15s, box-shadow .15s;
+      margin-top: .5rem;
+    }
+
+    .login-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(232, 160, 32, .5);
+    }
+
+    .login-btn:active {
+      transform: translateY(0);
+    }
+
+    .login-demo-hint {
+      color: rgba(255, 255, 255, .4);
+      font-size: .78rem;
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+   APP SHELL
+═══════════════════════════════════════════════════════════ */
+    #appShell {
+      display: none;
+      min-height: 100vh;
+    }
+
+    #appShell.active {
+      display: flex;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      min-height: 100vh;
+      background: var(--sidebar-bg);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      z-index: 200;
+      transition: transform .3s cubic-bezier(.16, 1, .3, 1);
+      border-right: 1px solid rgba(255, 255, 255, .05);
+    }
+
+    .sidebar-brand {
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      border-bottom: 1px solid rgba(255, 255, 255, .06);
+      text-decoration: none;
+    }
+
+    .brand-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-light));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .brand-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.2;
+    }
+
+    .brand-sub {
+      font-size: .65rem;
+      color: rgba(255, 255, 255, .35);
+      font-family: 'DM Sans', sans-serif;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 1rem 0;
+      overflow-y: auto;
+    }
+
+    .nav-section-label {
+      font-size: .65rem;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, .25);
+      padding: .75rem 1.5rem .25rem;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding: .65rem 1.5rem;
+      color: var(--sidebar-text);
+      text-decoration: none;
+      border-radius: 0;
+      font-size: .88rem;
+      font-weight: 400;
+      cursor: pointer;
+      transition: all .2s;
+      border-left: 3px solid transparent;
+      user-select: none;
+    }
+
+    .nav-item i {
+      font-size: 1.1rem;
+      width: 20px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .nav-item:hover {
+      background: var(--sidebar-hover);
+      color: #fff;
+    }
+
+    .nav-item.active {
+      background: rgba(232, 160, 32, .12);
+      border-left-color: var(--accent);
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .nav-item .badge-count {
+      margin-left: auto;
+      background: var(--accent);
+      color: #0f2744;
+      font-size: .65rem;
+      font-weight: 700;
+      padding: .1rem .5rem;
+      border-radius: 20px;
+    }
+
+    .sidebar-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid rgba(255, 255, 255, .06);
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+    }
+
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--primary-light), var(--accent));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 700;
+      font-size: .9rem;
+      flex-shrink: 0;
+    }
+
+    .user-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .user-name {
+      color: #fff;
+      font-size: .85rem;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .user-role {
+      color: rgba(255, 255, 255, .35);
+      font-size: .7rem;
+      text-transform: capitalize;
+    }
+
+    /* ── Main content ── */
+    .main-content {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Topbar ── */
+    .topbar {
+      height: var(--header-h);
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 1.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      gap: 1rem;
+      transition: background .3s, border .3s;
+    }
+
+    .topbar-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 1.3rem;
+      cursor: pointer;
+      padding: .3rem;
+    }
+
+    .topbar-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      flex: 1;
+      color: var(--text);
+    }
+
+    .topbar-subtitle {
+      font-size: .75rem;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+    }
+
+    .topbar-btn {
+      width: 36px;
+      height: 36px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all .2s;
+    }
+
+    .topbar-btn:hover {
+      color: var(--primary);
+      background: var(--card-bg);
+      border-color: var(--primary);
+    }
+
+    /* ── Page content ── */
+    .page-content {
+      flex: 1;
+      padding: 1.5rem;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+   CARDS
+═══════════════════════════════════════════════════════════ */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      transition: background .3s, border .3s;
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 1.1rem 1.4rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .card-title {
+      font-weight: 600;
+      font-size: .95rem;
+      color: var(--text);
+    }
+
+    .card-body {
+      padding: 1.4rem;
+    }
+
+    /* ── Stat cards ── */
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.4rem;
+      position: relative;
+      overflow: hidden;
+      transition: transform .2s, box-shadow .2s, background .3s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 120px;
+      height: 120px;
+      border-radius: 0 0 0 100%;
+      opacity: .06;
+    }
+
+    .stat-card.blue {
+      border-top: 3px solid #2a5298;
+    }
+
+    .stat-card.gold {
+      border-top: 3px solid #e8a020;
+    }
+
+    .stat-card.green {
+      border-top: 3px solid #1b9e6e;
+    }
+
+    .stat-card.red {
+      border-top: 3px solid #d94040;
+    }
+
+    .stat-card.blue::after {
+      background: #2a5298;
+    }
+
+    .stat-card.gold::after {
+      background: #e8a020;
+    }
+
+    .stat-card.green::after {
+      background: #1b9e6e;
+    }
+
+    .stat-card.red::after {
+      background: #d94040;
+    }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
+    }
+
+    .stat-icon.blue {
+      background: rgba(42, 82, 152, .12);
+      color: #2a5298;
+    }
+
+    .stat-icon.gold {
+      background: rgba(232, 160, 32, .12);
+      color: #e8a020;
+    }
+
+    .stat-icon.green {
+      background: rgba(27, 158, 110, .12);
+      color: #1b9e6e;
+    }
+
+    .stat-icon.red {
+      background: rgba(217, 64, 64, .12);
+      color: #d94040;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: .8rem;
+      color: var(--text-muted);
+      margin-top: .3rem;
+    }
+
+    .stat-change {
+      font-size: .78rem;
+      font-weight: 500;
+      margin-top: .5rem;
+    }
+
+    .stat-change.up {
+      color: var(--success);
+    }
+
+    .stat-change.dn {
+      color: var(--danger);
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+   TABLE
+═══════════════════════════════════════════════════════════ */
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    .sms-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .875rem;
+    }
+
+    .sms-table thead th {
+      background: var(--bg);
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: .75rem;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      padding: .75rem 1rem;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    .sms-table tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background .15s;
+    }
+
+    .sms-table tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    .sms-table tbody tr:hover {
+      background: rgba(42, 82, 152, .03);
+    }
+
+    .sms-table td {
+      padding: .85rem 1rem;
+      color: var(--text);
+      vertical-align: middle;
+    }
+
+    /* ── Student avatar cell ── */
+    .stu-cell {
+      display: flex;
+      align-items: center;
+      gap: .7rem;
+    }
+
+    .stu-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: .85rem;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .stu-name {
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .stu-code {
+      font-size: .75rem;
+      color: var(--text-muted);
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+   BADGES & PILLS
+═══════════════════════════════════════════════════════════ */
+    .badge-grade {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: .8rem;
+    }
+
+    .grade-A {
+      background: rgba(27, 158, 110, .15);
+      color: #1b9e6e;
+    }
+
+    .grade-B {
+      background: rgba(14, 165, 233, .15);
+      color: #0ea5e9;
+    }
+
+    .grade-C {
+      background: rgba(232, 160, 32, .15);
+      color: #e8a020;
+    }
+
+    .grade-D {
+      background: rgba(217, 64, 64, .12);
+      color: #d94040;
+    }
+
+    .grade-F {
+      background: rgba(100, 100, 100, .12);
+      color: #888;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: .2rem .65rem;
+      border-radius: 20px;
+      font-size: .75rem;
+      font-weight: 500;
+    }
+
+    .pill-active {
+      background: rgba(27, 158, 110, .12);
+      color: #1b9e6e;
+    }
+
+    .pill-inactive {
+      background: rgba(100, 100, 100, .1);
+      color: #888;
+    }
+
+    .pill-male {
+      background: rgba(42, 82, 152, .1);
+      color: #2a5298;
+    }
+
+    .pill-female {
+      background: rgba(232, 94, 141, .1);
+      color: #e05a8b;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════════════════════════ */
+    .btn-primary-sms {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: #fff;
+      border: none;
+      border-radius: 9px;
+      padding: .6rem 1.2rem;
+      font-weight: 600;
+      font-size: .875rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      transition: opacity .2s, transform .15s;
+    }
+
+    .btn-primary-sms:hover {
+      opacity: .9;
+      transform: translateY(-1px);
+    }
+
+    .btn-accent {
+      background: linear-gradient(135deg, var(--accent), var(--accent-light));
+      color: #0f2744;
+      border: none;
+      border-radius: 9px;
+      padding: .6rem 1.2rem;
+      font-weight: 600;
+      font-size: .875rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      transition: opacity .2s, transform .15s;
+    }
+
+    .btn-accent:hover {
+      opacity: .9;
+      transform: translateY(-1px);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: .55rem 1rem;
+      font-size: .875rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      transition: all .2s;
+    }
+
+    .btn-ghost:hover {
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .btn-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: .9rem;
+      transition: all .2s;
+    }
+
+    .btn-icon:hover {
+      color: var(--text);
+      border-color: var(--text-muted);
+    }
+
+    .btn-icon.danger:hover {
+      color: var(--danger);
+      border-color: var(--danger);
+      background: rgba(217, 64, 64, .06);
+    }
+
+    .btn-icon.edit:hover {
+      color: var(--primary-light);
+      border-color: var(--primary-light);
+      background: rgba(42, 82, 152, .06);
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+   SEARCH & FILTER BAR
+═══════════════════════════════════════════════════════════ */
+    .search-bar {
+      position: relative;
+    }
+
+    .search-bar input {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      color: var(--text);
+      padding: .55rem 1rem .55rem 2.4rem;
+      font-size: .875rem;
+      width: 220px;
+      transition: border .2s, background .2s;
+    }
+
+    .search-bar input:focus {
+      outline: none;
+      border-color: var(--primary-light);
+      width: 270px;
+    }
+
+    .search-bar .search-icon {
+      position: absolute;
+      left: .75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: .9rem;
+    }
+
+    .filter-select {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      color: var(--text);
+      padding: .55rem .9rem;
+      font-size: .875rem;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23637085' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right .75rem center;
+      padding-right: 2.2rem;
+    }
+
+    .filter-select:focus {
+      outline: none;
+      border-color: var(--primary-light);
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+   FORMS
+═══════════════════════════════════════════════════════════ */
+    .form-label-sms {
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      margin-bottom: .35rem;
+      display: block;
+    }
+
+    .form-control-sms,
+    .form-select-sms {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      color: var(--text);
+      padding: .65rem .9rem;
+      font-size: .875rem;
+      width: 100%;
+      font-family: 'DM Sans', sans-serif;
+      transition: border .2s, background .2s;
+    }
+
+    .form-control-sms:focus,
+    .form-select-sms:focus {
+      outline: none;
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 3px rgba(42, 82, 152, .1);
+    }
+
+    .form-select-sms {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23637085' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right .9rem center;
+      padding-right: 2.4rem;
+      cursor: pointer;
+      background-color: var(--input-bg);
+    }
+
+    .score-input-group {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: .75rem;
+    }
+
+    .score-input-label {
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: .5rem;
+    }
+
+    .score-max {
+      font-size: .75rem;
+      color: var(--text-muted);
+    }
+
+    .score-slider {
+      width: 100%;
+      accent-color: var(--primary-light);
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+   MODALS
+═══════════════════════════════════════════════════════════ */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .55);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s;
+    }
+
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal-box {
+      background: var(--card-bg);
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, .3);
+      width: 100%;
+      max-width: 620px;
+      max-height: 90vh;
+      overflow-y: auto;
+      transform: translateY(20px) scale(.97);
+      transition: transform .25s cubic-bezier(.16, 1, .3, 1);
+      border: 1px solid var(--border);
+    }
+
+    .modal-overlay.open .modal-box {
+      transform: translateY(0) scale(1);
+    }
+
+    .modal-header {
+      padding: 1.4rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-title {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--text);
+    }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 1rem;
+      transition: all .2s;
+    }
+
+    .modal-close:hover {
+      color: var(--danger);
+      border-color: var(--danger);
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+    }
+
+    .modal-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: .75rem;
+      justify-content: flex-end;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+   TOASTS
+═══════════════════════════════════════════════════════════ */
+    .toast-container {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: .6rem;
+    }
+
+    .toast-item {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: .85rem 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      box-shadow: var(--shadow-md);
+      min-width: 280px;
+      animation: toastIn .3s cubic-bezier(.16, 1, .3, 1);
+      font-size: .875rem;
+      color: var(--text);
+    }
+
+    .toast-item.exit {
+      animation: toastOut .3s ease forwards;
+    }
+
+    @keyframes toastIn {
+      from {
+        opacity: 0;
+        transform: translateX(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    @keyframes toastOut {
+      to {
+        opacity: 0;
+        transform: translateX(20px);
+      }
+    }
+
+    .toast-icon {
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .toast-success .toast-icon {
+      color: var(--success);
+    }
+
+    .toast-error .toast-icon {
+      color: var(--danger);
+    }
+
+    .toast-warning .toast-icon {
+      color: var(--warning);
+    }
+
+    .toast-info .toast-icon {
+      color: var(--info);
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+   PAGINATION
+═══════════════════════════════════════════════════════════ */
+    .pagination-sms {
+      display: flex;
+      align-items: center;
+      gap: .35rem;
+      flex-wrap: wrap;
+    }
+
+    .page-btn {
+      width: 34px;
+      height: 34px;
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      color: var(--text-muted);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: .875rem;
+      transition: all .2s;
+    }
+
+    .page-btn:hover {
+      border-color: var(--primary-light);
+      color: var(--primary-light);
+    }
+
+    .page-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    .page-btn:disabled {
+      opacity: .4;
+      cursor: default;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+   SCORE CARD (student view)
+═══════════════════════════════════════════════════════════ */
+    .score-ring-wrap {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      margin: 0 auto .75rem;
+    }
+
+    .score-ring-wrap svg {
+      transform: rotate(-90deg);
+    }
+
+    .score-ring-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .score-ring-val {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .score-ring-max {
+      font-size: .7rem;
+      color: var(--text-muted);
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+   PRINT / PDF STYLES
+═══════════════════════════════════════════════════════════ */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+
+      #printArea,
+      #printArea * {
+        visibility: visible;
+      }
+
+      #printArea {
+        position: fixed;
+        inset: 0;
+        padding: 2rem;
+        background: #fff;
+        color: #000;
+      }
+
+      .no-print {
+        display: none !important;
+      }
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════════════════ */
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+        box-shadow: 0 0 40px rgba(0, 0, 0, .4);
+      }
+
+      .main-content {
+        margin-left: 0;
+      }
+
+      .topbar-toggle {
+        display: flex;
+      }
+
+      .sidebar-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 199;
+        background: rgba(0, 0, 0, .4);
+        display: none;
+      }
+
+      .sidebar-overlay.open {
+        display: block;
+      }
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+   MISC UTILITIES
+═══════════════════════════════════════════════════════════ */
+    .text-accent {
+      color: var(--accent);
+    }
+
+    .text-muted-sms {
+      color: var(--text-muted);
+    }
+
+    .fw-600 {
+      font-weight: 600;
+    }
+
+    .gap-2 {
+      gap: .5rem;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-muted);
+    }
+
+    .empty-state i {
+      font-size: 2.5rem;
+      opacity: .3;
+      display: block;
+      margin-bottom: 1rem;
+    }
+
+    .progress-bar-sms {
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: .3rem;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width .5s cubic-bezier(.16, 1, .3, 1);
+    }
+
+    /* Score color helpers */
+    .score-excellent {
+      color: #1b9e6e;
+    }
+
+    .score-good {
+      color: #0ea5e9;
+    }
+
+    .score-avg {
+      color: #e8a020;
+    }
+
+    .score-low {
+      color: #d94040;
+    }
+
+    /* Chart containers */
+    .chart-container {
+      position: relative;
+    }
+
+    /* Avatar colors based on initials */
+    .av-blue {
+      background: linear-gradient(135deg, #2a5298, #4a72b8);
+    }
+
+    .av-green {
+      background: linear-gradient(135deg, #1b9e6e, #2ecc71);
+    }
+
+    .av-orange {
+      background: linear-gradient(135deg, #e8a020, #f5c842);
+      color: #0f2744 !important;
+    }
+
+    .av-red {
+      background: linear-gradient(135deg, #d94040, #e06060);
+    }
+
+    .av-purple {
+      background: linear-gradient(135deg, #7c3aed, #a855f7);
+    }
+
+    .av-teal {
+      background: linear-gradient(135deg, #0ea5e9, #38bdf8);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ════════════════════════════════════════════════════════
+     LOGIN PAGE
+════════════════════════════════════════════════════════ -->
+  <div id="loginPage">
+    <div class="login-orb"></div>
+    <div class="login-orb"></div>
+
+    <div class="login-card">
+      <div class="login-logo">🎓</div>
+      <h1>EduTrack SMS</h1>
+      <p class="subtitle">Student Management System<br><span class="khmer"
+          style="font-size:.8rem;opacity:.7">ប្រព័ន្ធគ្រប់គ្រងសិស្ស</span></p>
+
+      <!-- Role tabs -->
+      <div class="role-tabs">
+        <button class="role-tab active" onclick="setRole('admin')"><i class="bi bi-shield-fill"></i> Admin</button>
+        <button class="role-tab" onclick="setRole('student')"><i class="bi bi-person-fill"></i> Student</button>
+        <button class="role-tab" onclick="setRole('parent')"><i class="bi bi-people-fill"></i> Parent</button>
+      </div>
+
+      <input type="text" class="login-input" id="loginUser" placeholder="Username" autocomplete="username" />
+      <input type="password" class="login-input" id="loginPass" placeholder="Password"
+        autocomplete="current-password" />
+
+      <button class="login-btn" onclick="doLogin()">
+        <span id="loginBtnText">Sign In</span>
+        <span id="loginSpinner" style="display:none">⏳</span>
+      </button>
+
+      <p class="login-demo-hint">
+        Demo — Admin: <strong style="color:rgba(255,255,255,.6)">admin / admin123</strong>
+      </p>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════
+     APP SHELL
+════════════════════════════════════════════════════════ -->
+  <div id="appShell">
+
+    <!-- Sidebar overlay (mobile) -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+    <!-- ── Sidebar ── -->
+    <aside class="sidebar" id="sidebar">
+      <a class="sidebar-brand" href="#" onclick="return false">
+        <div class="brand-icon">🎓</div>
+        <div>
+          <div class="brand-text">EduTrack</div>
+          <div class="brand-sub">Student Management</div>
+        </div>
+      </a>
+
+      <nav class="sidebar-nav" id="sidebarNav">
+        <!-- Populated by JS based on role -->
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-avatar" id="sidebarAvatar">A</div>
+        <div class="user-info">
+          <div class="user-name" id="sidebarUserName">Admin</div>
+          <div class="user-role" id="sidebarUserRole">Administrator</div>
+        </div>
+        <button class="btn-icon" onclick="doLogout()" title="Logout"><i class="bi bi-box-arrow-right"></i></button>
+      </div>
+    </aside>
+
+    <!-- ── Main content ── -->
+    <div class="main-content">
+
+      <!-- Topbar -->
+      <header class="topbar">
+        <button class="topbar-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+        <div>
+          <div class="topbar-title" id="topbarTitle">Dashboard</div>
+          <div class="topbar-subtitle" id="topbarSub">Overview of your school</div>
+        </div>
+        <div class="topbar-actions">
+          <button class="topbar-btn" onclick="toggleDark()" title="Toggle dark mode" id="darkToggleBtn">
+            <i class="bi bi-moon-fill"></i>
+          </button>
+          <button class="topbar-btn" id="topbarNotif" title="Notifications">
+            <i class="bi bi-bell"></i>
+          </button>
+          <div style="width:1px;height:24px;background:var(--border)"></div>
+          <button class="topbar-btn" onclick="doLogout()" title="Sign out">
+            <i class="bi bi-power"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- Page content area -->
+      <main class="page-content" id="pageContent">
+        <!-- Rendered by JS router -->
+      </main>
+
+    </div><!-- /main-content -->
+  </div><!-- /appShell -->
+
+  <!-- ════════════════════════════════════════════════════════
+     GLOBAL MODALS
+════════════════════════════════════════════════════════ -->
+
+  <!-- Student Modal -->
+  <div class="modal-overlay" id="studentModal">
+    <div class="modal-box" style="max-width:680px">
+      <div class="modal-header">
+        <span class="modal-title" id="studentModalTitle">Add Student</span>
+        <button class="modal-close" onclick="closeModal('studentModal')"><i class="bi bi-x"></i></button>
+      </div>
+      <div class="modal-body" id="studentModalBody">
+        <!-- dynamic form -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Score Modal -->
+  <div class="modal-overlay" id="scoreModal">
+    <div class="modal-box" style="max-width:520px">
+      <div class="modal-header">
+        <span class="modal-title" id="scoreModalTitle">Enter Scores</span>
+        <button class="modal-close" onclick="closeModal('scoreModal')"><i class="bi bi-x"></i></button>
+      </div>
+      <div class="modal-body" id="scoreModalBody"></div>
+    </div>
+  </div>
+
+  <!-- Confirm Delete Modal -->
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal-box" style="max-width:380px">
+      <div class="modal-header">
+        <span class="modal-title">Confirm Delete</span>
+        <button class="modal-close" onclick="closeModal('confirmModal')"><i class="bi bi-x"></i></button>
+      </div>
+      <div class="modal-body">
+        <p id="confirmMsg" style="color:var(--text);font-size:.9rem;margin-bottom:1.5rem"></p>
+        <div style="display:flex;gap:.75rem;justify-content:flex-end">
+          <button class="btn-ghost" onclick="closeModal('confirmModal')">Cancel</button>
+          <button class="btn-primary-sms" id="confirmBtn"
+            style="background:linear-gradient(135deg,#d94040,#e06060)">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Course Modal -->
+  <div class="modal-overlay" id="courseModal">
+    <div class="modal-box" style="max-width:460px">
+      <div class="modal-header">
+        <span class="modal-title" id="courseModalTitle">Add Course</span>
+        <button class="modal-close" onclick="closeModal('courseModal')"><i class="bi bi-x"></i></button>
+      </div>
+      <div class="modal-body" id="courseModalBody"></div>
+    </div>
+  </div>
+
+  <!-- Report Card Modal -->
+  <div class="modal-overlay" id="reportModal">
+    <div class="modal-box" style="max-width:700px">
+      <div class="modal-header">
+        <span class="modal-title">Student Report Card</span>
+        <div style="display:flex;gap:.5rem">
+          <button class="btn-accent no-print" onclick="printReport()"><i class="bi bi-printer"></i> Print / PDF</button>
+          <button class="modal-close" onclick="closeModal('reportModal')"><i class="bi bi-x"></i></button>
+        </div>
+      </div>
+      <div class="modal-body" id="reportModalBody"></div>
+    </div>
+  </div>
+
+  <!-- Toast container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Hidden print area -->
+  <div id="printArea" style="display:none"></div>
+
+  <!-- ════════════════════════════════════════════════════════
+     SCRIPTS
+════════════════════════════════════════════════════════ -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script>
+    /* ═══════════════════════════════════════════════════════════
+       DATA STORE  (localStorage-backed, simulates backend)
+    ═══════════════════════════════════════════════════════════ */
+    const STORE_KEY = 'sms_data_v2';
+
+    const COURSES = [
+      { id: 1, name: 'ត្រៀមប្រឡងបាក់ឌុប', score_type: 'bacdub', color: '#2a5298' },
+      { id: 2, name: 'វេយ្យាករណ៍អង់គ្លេស', score_type: 'grammar', color: '#1b9e6e' },
+      { id: 3, name: 'អង់គ្លេសថ្នាក់ទី៦', score_type: 'grade6', color: '#e8a020' },
+      { id: 4, name: 'Beginner សម្រាប់កុមារ', score_type: 'beginner', color: '#d94040' },
+      { id: 5, name: 'The English Alphabets', score_type: 'alphabets', color: '#7c3aed' },
+      { id: 6, name: 'The Vocabulary', score_type: 'vocabulary', color: '#0ea5e9' },
+    ];
+
+    const SCORE_TYPES = {
+      bacdub: { fields: [{ key: 'homework', label: 'Homework', max: 25 }, { key: 'monthly_test', label: 'Monthly Test', max: 25 }] },
+      grammar: { fields: [{ key: 'attendance', label: 'Attendance', max: 5 }, { key: 'worksheet', label: 'Worksheet Practice', max: 20 }, { key: 'monthly_test', label: 'Monthly Test', max: 25 }] },
+      grade6: { fields: [{ key: 'attendance', label: 'Attendance', max: 5 }, { key: 'voice_message', label: 'Voice Lesson Message', max: 20 }, { key: 'monthly_test', label: 'Monthly Test', max: 25 }] },
+      beginner: { fields: [{ key: 'attendance', label: 'Attendance', max: 5 }, { key: 'voice_message', label: 'Voice Lesson Message', max: 20 }, { key: 'monthly_test', label: 'Monthly Test', max: 25 }] },
+      alphabets: { fields: [{ key: 'attendance', label: 'Attendance', max: 5 }, { key: 'voice_message', label: 'Voice Lesson Message', max: 20 }, { key: 'monthly_test', label: 'Monthly Test', max: 25 }] },
+      vocabulary: { fields: [{ key: 'attendance', label: 'Attendance', max: 5 }, { key: 'worksheet', label: 'Worksheet Practice', max: 20 }, { key: 'monthly_test', label: 'Monthly Test', max: 25 }] },
+    };
+
+    const AVATAR_COLORS = ['av-blue', 'av-green', 'av-orange', 'av-red', 'av-purple', 'av-teal'];
+
+    function getAvatarClass(name) {
+      const code = (name || 'A').charCodeAt(0) % AVATAR_COLORS.length;
+      return AVATAR_COLORS[code];
+    }
+
+    function getInitials(name) {
+      return (name || '?').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+    }
+
+    function calcTotal(scores) {
+      return (['attendance', 'homework', 'worksheet', 'voice_message', 'monthly_test']
+        .reduce((s, k) => s + (parseFloat(scores[k]) || 0), 0));
+    }
+
+    function getGrade(total) {
+      if (total >= 45) return 'A';
+      if (total >= 40) return 'B';
+      if (total >= 35) return 'C';
+      if (total >= 25) return 'D';
+      return 'F';
+    }
+
+    function getScoreClass(total) {
+      if (total >= 45) return 'score-excellent';
+      if (total >= 40) return 'score-good';
+      if (total >= 35) return 'score-avg';
+      return 'score-low';
+    }
+
+    // ── Default seed data ──────────────────────────────────────
+    const DEFAULT_DATA = {
+      students: [
+        { id: 1, student_code: 'STU-0001', name: 'Sophea Chan', gender: 'Female', age: 17, dob: '2007-03-15', pob: 'Phnom Penh', parent_name: 'Chan Makara', parent_phone: '012-345-678', course_id: 1, username: 'sophea', status: 'active' },
+        { id: 2, student_code: 'STU-0002', name: 'Rathana Kim', gender: 'Male', age: 16, dob: '2008-07-22', pob: 'Siem Reap', parent_name: 'Kim Sokha', parent_phone: '011-234-567', course_id: 2, username: 'rathana', status: 'active' },
+        { id: 3, student_code: 'STU-0003', name: 'Bopha Lim', gender: 'Female', age: 12, dob: '2012-01-10', pob: 'Battambang', parent_name: 'Lim Chantha', parent_phone: '010-987-654', course_id: 4, username: 'bopha', status: 'active' },
+        { id: 4, student_code: 'STU-0004', name: 'Piseth Mao', gender: 'Male', age: 14, dob: '2010-09-05', pob: 'Kampong Cham', parent_name: 'Mao Rithy', parent_phone: '093-111-222', course_id: 3, username: 'piseth', status: 'active' },
+        { id: 5, student_code: 'STU-0005', name: 'Sreymom Heng', gender: 'Female', age: 11, dob: '2013-05-18', pob: 'Takeo', parent_name: 'Heng Vanna', parent_phone: '096-333-444', course_id: 5, username: 'sreymom', status: 'active' },
+        { id: 6, student_code: 'STU-0006', name: 'Virak Phan', gender: 'Male', age: 15, dob: '2009-11-30', pob: 'Kandal', parent_name: 'Phan Sophat', parent_phone: '085-555-666', course_id: 6, username: 'virak', status: 'active' },
+        { id: 7, student_code: 'STU-0007', name: 'Chanthy Ros', gender: 'Female', age: 17, dob: '2007-08-12', pob: 'Phnom Penh', parent_name: 'Ros Bunna', parent_phone: '077-123-456', course_id: 1, username: 'chanthy', status: 'active' },
+        { id: 8, student_code: 'STU-0008', name: 'Dara Sorn', gender: 'Male', age: 16, dob: '2008-02-28', pob: 'Siem Reap', parent_name: 'Sorn Kanha', parent_phone: '089-456-789', course_id: 2, username: 'dara', status: 'active' },
+      ],
+      scores: [
+        { id: 1, student_id: 1, week_label: 'Month 1', homework: 22, monthly_test: 24, attendance: null, worksheet: null, voice_message: null },
+        { id: 2, student_id: 1, week_label: 'Month 2', homework: 20, monthly_test: 23, attendance: null, worksheet: null, voice_message: null },
+        { id: 3, student_id: 2, week_label: 'Month 1', attendance: 5, worksheet: 18, monthly_test: 22, homework: null, voice_message: null },
+        { id: 4, student_id: 2, week_label: 'Month 2', attendance: 4, worksheet: 19, monthly_test: 24, homework: null, voice_message: null },
+        { id: 5, student_id: 3, week_label: 'Month 1', attendance: 5, voice_message: 17, monthly_test: 20, homework: null, worksheet: null },
+        { id: 6, student_id: 4, week_label: 'Month 1', attendance: 4, voice_message: 18, monthly_test: 21, homework: null, worksheet: null },
+        { id: 7, student_id: 5, week_label: 'Month 1', attendance: 5, voice_message: 19, monthly_test: 23, homework: null, worksheet: null },
+        { id: 8, student_id: 6, week_label: 'Month 1', attendance: 4, worksheet: 17, monthly_test: 20, homework: null, voice_message: null },
+        { id: 9, student_id: 7, week_label: 'Month 1', homework: 24, monthly_test: 25, attendance: null, worksheet: null, voice_message: null },
+        { id: 10, student_id: 8, week_label: 'Month 1', attendance: 5, worksheet: 20, monthly_test: 23, homework: null, voice_message: null },
+      ],
+      courses: [...COURSES],
+      users: [
+        { id: 1, username: 'admin', password: 'admin123', role: 'admin', student_id: null },
+        { id: 2, username: 'sophea', password: 'sophea123', role: 'student', student_id: 1 },
+        { id: 3, username: 'rathana', password: 'rathana123', role: 'student', student_id: 2 },
+        { id: 4, username: 'parent1', password: 'parent123', role: 'parent', student_id: 1 },
+      ],
+      nextId: { student: 9, score: 11, user: 5 },
+    };
+
+    // ── Store helpers ──────────────────────────────────────────
+    function loadStore() {
+      try {
+        const raw = localStorage.getItem(STORE_KEY);
+        return raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(DEFAULT_DATA));
+      } catch { return JSON.parse(JSON.stringify(DEFAULT_DATA)); }
+    }
+
+    function saveStore(data) {
+      localStorage.setItem(STORE_KEY, JSON.stringify(data));
+    }
+
+    let DB = loadStore();
+
+    // Ensure courses always up to date
+    function ensureCourses() {
+      if (!DB.courses || DB.courses.length < COURSES.length) {
+        DB.courses = [...COURSES];
+        saveStore(DB);
+      }
+    }
+    ensureCourses();
+
+    /* ═══════════════════════════════════════════════════════════
+       AUTH
+    ═══════════════════════════════════════════════════════════ */
+    let currentUser = null;
+    let selectedRole = 'admin';
+
+    function setRole(role) {
+      selectedRole = role;
+      document.querySelectorAll('.role-tab').forEach((t, i) => {
+        t.classList.toggle('active', ['admin', 'student', 'parent'][i] === role);
+      });
+      // Demo hints
+      const hints = { admin: 'admin / admin123', student: 'sophea / sophea123', parent: 'parent1 / parent123' };
+      document.querySelector('.login-demo-hint').innerHTML = `Demo — ${role.charAt(0).toUpperCase() + role.slice(1)}: <strong style="color:rgba(255,255,255,.6)">${hints[role]}</strong>`;
+    }
+
+    function doLogin() {
+      const username = document.getElementById('loginUser').value.trim();
+      const password = document.getElementById('loginPass').value;
+      if (!username || !password) { toast('Please enter username and password', 'error'); return; }
+
+      const user = DB.users.find(u => u.username === username && u.password === password && u.role === selectedRole);
+      if (!user) { toast('Invalid credentials or role mismatch', 'error'); return; }
+
+      currentUser = user;
+
+      // Transition
+      document.getElementById('loginPage').style.opacity = '0';
+      document.getElementById('loginPage').style.transition = 'opacity .3s';
+      setTimeout(() => {
+        document.getElementById('loginPage').style.display = 'none';
+        document.getElementById('appShell').classList.add('active');
+        initApp();
+      }, 300);
+    }
+
+    function doLogout() {
+      currentUser = null;
+      document.getElementById('appShell').classList.remove('active');
+      document.getElementById('loginPage').style.display = 'flex';
+      document.getElementById('loginPage').style.opacity = '1';
+      document.getElementById('loginUser').value = '';
+      document.getElementById('loginPass').value = '';
+    }
+
+    // Allow Enter key on login
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && document.getElementById('loginPage').style.display !== 'none' &&
+        document.getElementById('loginPage').offsetParent !== null) doLogin();
+    });
+
+    /* ═══════════════════════════════════════════════════════════
+       APP INIT & ROUTER
+    ═══════════════════════════════════════════════════════════ */
+    let currentPage = 'dashboard';
+
+    const PAGES = {
+      admin: [
+        { id: 'dashboard', label: 'Dashboard', icon: 'bi-grid-fill', section: 'MAIN' },
+        { id: 'students', label: 'Students', icon: 'bi-people-fill', section: 'MANAGE' },
+        { id: 'scores', label: 'Scores', icon: 'bi-bar-chart-fill', section: 'MANAGE' },
+        { id: 'courses', label: 'Courses', icon: 'bi-book-fill', section: 'MANAGE' },
+        { id: 'reports', label: 'Reports', icon: 'bi-file-earmark-text-fill', section: 'REPORTS' },
+        { id: 'attendance', label: 'Attendance', icon: 'bi-calendar-check-fill', section: 'REPORTS' },
+      ],
+      student: [
+        { id: 'my-profile', label: 'My Profile', icon: 'bi-person-fill', section: 'MY ACCOUNT' },
+        { id: 'my-scores', label: 'My Scores', icon: 'bi-bar-chart-fill', section: 'MY ACCOUNT' },
+        { id: 'my-report', label: 'Report Card', icon: 'bi-file-earmark-fill', section: 'MY ACCOUNT' },
+      ],
+      parent: [
+        { id: 'child-view', label: "Child's Progress", icon: 'bi-person-heart-fill', section: 'OVERVIEW' },
+        { id: 'child-scores', label: 'Score History', icon: 'bi-bar-chart-fill', section: 'OVERVIEW' },
+      ],
+    };
+
+    function initApp() {
+      DB = loadStore();
+
+      // Sidebar user info
+      document.getElementById('sidebarAvatar').textContent = getInitials(currentUser.username);
+      document.getElementById('sidebarUserName').textContent = currentUser.username;
+      document.getElementById('sidebarUserRole').textContent = currentUser.role;
+
+      buildSidebarNav();
+      navigate(PAGES[currentUser.role][0].id);
+    }
+
+    function buildSidebarNav() {
+      const pages = PAGES[currentUser.role] || [];
+      let lastSection = '';
+      let html = '';
+
+      pages.forEach(p => {
+        if (p.section !== lastSection) {
+          html += `<div class="nav-section-label">${p.section}</div>`;
+          lastSection = p.section;
+        }
+        html += `<div class="nav-item" id="nav-${p.id}" onclick="navigate('${p.id}')">
+      <i class="bi ${p.icon}"></i><span>${p.label}</span>
+    </div>`;
+      });
+
+      document.getElementById('sidebarNav').innerHTML = html;
+    }
+
+    function navigate(pageId) {
+      currentPage = pageId;
+
+      // Update active nav
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      const navEl = document.getElementById('nav-' + pageId);
+      if (navEl) navEl.classList.add('active');
+
+      // Update topbar
+      const titles = {
+        dashboard: ['Dashboard', 'Overview of your school'],
+        students: ['Students', 'Manage all student records'],
+        scores: ['Score Management', 'Enter and update student scores'],
+        courses: ['Courses', 'Manage course offerings'],
+        reports: ['Reports', 'Performance reports & exports'],
+        attendance: ['Attendance', 'Daily attendance tracking'],
+        'my-profile': ['My Profile', 'Your student information'],
+        'my-scores': ['My Scores', 'View your academic performance'],
+        'my-report': ['Report Card', 'Download your report card'],
+        'child-view': ["Child's Progress", 'Overview of your child\'s performance'],
+        'child-scores': ['Score History', 'Detailed score history'],
+      };
+      const t = titles[pageId] || [pageId, ''];
+      document.getElementById('topbarTitle').textContent = t[0];
+      document.getElementById('topbarSub').textContent = t[1];
+
+      // Render page
+      const content = document.getElementById('pageContent');
+      content.style.opacity = '0';
+      content.style.transform = 'translateY(8px)';
+      content.style.transition = 'opacity .2s, transform .2s';
+
+      setTimeout(() => {
+        renderPage(pageId);
+        content.style.opacity = '1';
+        content.style.transform = 'translateY(0)';
+        closeSidebar();
+      }, 100);
+    }
+
+    function renderPage(pageId) {
+      const el = document.getElementById('pageContent');
+      switch (pageId) {
+        case 'dashboard': el.innerHTML = renderDashboard(); initDashboardCharts(); break;
+        case 'students': el.innerHTML = renderStudents(); break;
+        case 'scores': el.innerHTML = renderScores(); break;
+        case 'courses': el.innerHTML = renderCourses(); break;
+        case 'reports': el.innerHTML = renderReports(); initReportChart(); break;
+        case 'attendance': el.innerHTML = renderAttendance(); break;
+        case 'my-profile': el.innerHTML = renderMyProfile(); break;
+        case 'my-scores': el.innerHTML = renderMyScores(); initMyScoreChart(); break;
+        case 'my-report': el.innerHTML = renderMyReport(); break;
+        case 'child-view': el.innerHTML = renderChildView(); break;
+        case 'child-scores': el.innerHTML = renderChildScores(); break;
+        default: el.innerHTML = '<div class="empty-state"><i class="bi bi-exclamation-circle"></i><p>Page not found</p></div>';
+      }
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       HELPERS
+    ═══════════════════════════════════════════════════════════ */
+    function getCourse(id) { return DB.courses.find(c => c.id == id) || {}; }
+
+    function getStudentScores(studentId) {
+      return DB.scores.filter(s => s.student_id == studentId)
+        .map(s => ({ ...s, total: calcTotal(s), grade: getGrade(calcTotal(s)) }))
+        .sort((a, b) => b.id - a.id);
+    }
+
+    function getLatestScore(studentId) {
+      const scores = getStudentScores(studentId);
+      return scores[0] || null;
+    }
+
+    function formatDate(d) {
+      if (!d) return '—';
+      return new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+
+    function nextId(key) {
+      const id = DB.nextId[key]++;
+      saveStore(DB);
+      return id;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       DASHBOARD PAGE
+    ═══════════════════════════════════════════════════════════ */
+    function renderDashboard() {
+      const total = DB.students.filter(s => s.status === 'active').length;
+      const scores = DB.students.map(s => getLatestScore(s.id)).filter(Boolean);
+      const avg = scores.length ? (scores.reduce((a, s) => a + s.total, 0) / scores.length).toFixed(1) : 0;
+      const gradeA = scores.filter(s => s.grade === 'A').length;
+      const inactive = DB.students.filter(s => s.status === 'inactive').length;
+
+      const topStudents = DB.students
+        .map(s => ({ ...s, score: getLatestScore(s.id), course: getCourse(s.course_id) }))
+        .filter(s => s.score)
+        .sort((a, b) => b.score.total - a.score.total)
+        .slice(0, 5);
+
+      return `
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-xl-3">
+        <div class="stat-card blue">
+          <div class="stat-icon blue"><i class="bi bi-people-fill"></i></div>
+          <div class="stat-value">${total}</div>
+          <div class="stat-label">Active Students</div>
+          <div class="stat-change up"><i class="bi bi-arrow-up-short"></i> Total enrolled</div>
+        </div>
+      </div>
+      <div class="col-6 col-xl-3">
+        <div class="stat-card gold">
+          <div class="stat-icon gold"><i class="bi bi-star-fill"></i></div>
+          <div class="stat-value">${avg}</div>
+          <div class="stat-label">Average Score <span style="font-size:.65rem">/50</span></div>
+          <div class="stat-change ${avg >= 40 ? 'up' : 'dn'}"><i class="bi bi-graph-up"></i> Across all courses</div>
+        </div>
+      </div>
+      <div class="col-6 col-xl-3">
+        <div class="stat-card green">
+          <div class="stat-icon green"><i class="bi bi-trophy-fill"></i></div>
+          <div class="stat-value">${gradeA}</div>
+          <div class="stat-label">Grade A Students</div>
+          <div class="stat-change up"><i class="bi bi-check-circle"></i> Score ≥ 45</div>
+        </div>
+      </div>
+      <div class="col-6 col-xl-3">
+        <div class="stat-card red">
+          <div class="stat-icon red"><i class="bi bi-book-fill"></i></div>
+          <div class="stat-value">${DB.courses.length}</div>
+          <div class="stat-label">Active Courses</div>
+          <div class="stat-change dn"><i class="bi bi-mortarboard"></i> ${inactive} inactive students</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+      <div class="col-lg-8">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title"><i class="bi bi-bar-chart-fill text-accent me-2"></i>Score Distribution by Course</span>
+          </div>
+          <div class="card-body">
+            <div class="chart-container" style="height:260px">
+              <canvas id="courseChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="card h-100">
+          <div class="card-header">
+            <span class="card-title"><i class="bi bi-pie-chart-fill text-accent me-2"></i>Grade Distribution</span>
+          </div>
+          <div class="card-body">
+            <div class="chart-container" style="height:180px">
+              <canvas id="gradeChart"></canvas>
+            </div>
+            <div id="gradeLegend" style="margin-top:.75rem"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-lg-7">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title"><i class="bi bi-award-fill text-accent me-2"></i>Top Performers</span>
+            <button class="btn-ghost" style="font-size:.8rem" onclick="navigate('students')">View all</button>
+          </div>
+          <div class="table-wrapper">
+            <table class="sms-table">
+              <thead><tr>
+                <th>Student</th><th>Course</th><th>Score</th><th>Grade</th>
+              </tr></thead>
+              <tbody>
+              ${topStudents.map((s, i) => `
+                <tr>
+                  <td>
+                    <div class="stu-cell">
+                      <div class="stu-avatar ${getAvatarClass(s.name)}">${getInitials(s.name)}</div>
+                      <div>
+                        <div class="stu-name">${s.name}</div>
+                        <div class="stu-code">${s.student_code}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span style="font-size:.8rem;color:var(--text-muted)" class="khmer">${s.course.name || '—'}</span></td>
+                  <td>
+                    <div style="font-weight:700;font-size:.95rem" class="${getScoreClass(s.score.total)}">${s.score.total.toFixed(1)}</div>
+                    <div class="progress-bar-sms"><div class="progress-fill" style="width:${(s.score.total / 50) * 100}%;background:${s.score.total >= 45 ? '#1b9e6e' : s.score.total >= 35 ? '#e8a020' : '#d94040'}"></div></div>
+                  </td>
+                  <td><span class="badge-grade grade-${s.score.grade}">${s.score.grade}</span></td>
+                </tr>
+              `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-5">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title"><i class="bi bi-people-fill text-accent me-2"></i>Students per Course</span>
+          </div>
+          <div class="card-body" style="padding-top:.75rem">
+            ${DB.courses.map(c => {
+        const cnt = DB.students.filter(s => s.course_id === c.id && s.status === 'active').length;
+        const pct = total ? Math.round((cnt / total) * 100) : 0;
+        return `
+                <div style="margin-bottom:.9rem">
+                  <div style="display:flex;justify-content:space-between;font-size:.82rem;margin-bottom:.3rem">
+                    <span class="khmer" style="color:var(--text)">${c.name}</span>
+                    <span style="font-weight:600;color:var(--text-muted)">${cnt} (${pct}%)</span>
+                  </div>
+                  <div class="progress-bar-sms" style="height:8px">
+                    <div class="progress-fill" style="width:${pct}%;background:${c.color}"></div>
+                  </div>
+                </div>`;
+      }).join('')}
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+    }
+
+    function initDashboardCharts() {
+      // Course avg scores bar chart
+      const courseAvgs = DB.courses.map(c => {
+        const students = DB.students.filter(s => s.course_id === c.id);
+        const scores = students.map(s => getLatestScore(s.id)).filter(Boolean);
+        const avg = scores.length ? scores.reduce((a, s) => a + s.total, 0) / scores.length : 0;
+        return { name: c.name, avg: parseFloat(avg.toFixed(1)), color: c.color };
+      });
+
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const gridColor = isDark ? 'rgba(255,255,255,.06)' : 'rgba(0,0,0,.06)';
+      const textColor = isDark ? '#8faac2' : '#637085';
+
+      const ctx1 = document.getElementById('courseChart');
+      if (ctx1) {
+        new Chart(ctx1, {
+          type: 'bar',
+          data: {
+            labels: courseAvgs.map(c => c.name),
+            datasets: [{
+              label: 'Avg Score',
+              data: courseAvgs.map(c => c.avg),
+              backgroundColor: courseAvgs.map(c => c.color + 'cc'),
+              borderColor: courseAvgs.map(c => c.color),
+              borderWidth: 2,
+              borderRadius: 8,
+              borderSkipped: false,
+            }]
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 }, maxRotation: 30 } },
+              y: {
+                min: 0, max: 50, grid: { color: gridColor }, ticks: { color: textColor, font: { size: 11 } },
+                title: { display: true, text: 'Score /50', color: textColor, font: { size: 11 } }
+              }
+            }
+          }
+        });
+      }
+
+      // Grade distribution pie
+      const gradeCounts = { A: 0, B: 0, C: 0, D: 0, F: 0 };
+      DB.students.forEach(s => {
+        const sc = getLatestScore(s.id);
+        if (sc) gradeCounts[sc.grade]++;
+      });
+
+      const ctx2 = document.getElementById('gradeChart');
+      if (ctx2 && Object.values(gradeCounts).some(v => v > 0)) {
+        new Chart(ctx2, {
+          type: 'doughnut',
+          data: {
+            labels: Object.keys(gradeCounts),
+            datasets: [{
+              data: Object.values(gradeCounts),
+              backgroundColor: ['#1b9e6e', '#0ea5e9', '#e8a020', '#d94040', '#9ca3af'],
+              borderWidth: 0, hoverOffset: 6,
+            }]
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            cutout: '68%',
+            plugins: { legend: { display: false } }
+          }
+        });
+
+        // legend
+        const gradeColors = { A: '#1b9e6e', B: '#0ea5e9', C: '#e8a020', D: '#d94040', F: '#9ca3af' };
+        document.getElementById('gradeLegend').innerHTML =
+          Object.entries(gradeCounts).map(([g, c]) => `
+        <span style="display:inline-flex;align-items:center;gap:.3rem;margin:.15rem .3rem;font-size:.77rem;color:var(--text-muted)">
+          <span style="width:10px;height:10px;border-radius:3px;background:${gradeColors[g]};flex-shrink:0"></span>
+          Grade ${g}: <strong style="color:var(--text)">${c}</strong>
+        </span>
+      `).join('');
+      }
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       STUDENTS PAGE
+    ═══════════════════════════════════════════════════════════ */
+    let studSearch = '', studCourse = '', studGender = '', studPage = 1;
+    const STUD_PER_PAGE = 8;
+
+    function renderStudents() {
+      return `
+    <div class="card mb-3">
+      <div class="card-header" style="flex-wrap:wrap;gap:.75rem">
+        <span class="card-title">All Students</span>
+        <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;flex:1;justify-content:flex-end">
+          <div class="search-bar">
+            <i class="bi bi-search search-icon"></i>
+            <input type="text" placeholder="Search students…" value="${studSearch}"
+              oninput="studSearch=this.value;studPage=1;updateStudentTable()">
+          </div>
+          <select class="filter-select" onchange="studCourse=this.value;studPage=1;updateStudentTable()">
+            <option value="">All Courses</option>
+            ${DB.courses.map(c => `<option value="${c.id}" ${studCourse == c.id ? 'selected' : ''}>${c.name}</option>`).join('')}
+          </select>
+          <select class="filter-select" onchange="studGender=this.value;studPage=1;updateStudentTable()">
+            <option value="">All Genders</option>
+            <option value="Male" ${studGender === 'Male' ? 'selected' : ''}>Male</option>
+            <option value="Female" ${studGender === 'Female' ? 'selected' : ''}>Female</option>
+          </select>
+          <button class="btn-primary-sms" onclick="openAddStudent()">
+            <i class="bi bi-plus-lg"></i> Add Student
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="table-wrapper" id="studentTableWrap">
+        ${buildStudentTable()}
+      </div>
+    </div>
+  `;
+    }
+
+    function buildStudentTable() {
+      let filtered = DB.students.filter(s => {
+        const q = studSearch.toLowerCase();
+        const matchQ = !q || s.name.toLowerCase().includes(q) || s.student_code.toLowerCase().includes(q) || s.parent_name.toLowerCase().includes(q);
+        const matchC = !studCourse || s.course_id == studCourse;
+        const matchG = !studGender || s.gender === studGender;
+        return matchQ && matchC && matchG;
+      });
+
+      const total = filtered.length;
+      const pages = Math.ceil(total / STUD_PER_PAGE) || 1;
+      if (studPage > pages) studPage = pages;
+
+      const paged = filtered.slice((studPage - 1) * STUD_PER_PAGE, studPage * STUD_PER_PAGE);
+
+      if (!paged.length) return `<div class="empty-state"><i class="bi bi-people"></i><p>No students found</p></div>`;
+
+      const rows = paged.map(s => {
+        const c = getCourse(s.course_id);
+        const sc = getLatestScore(s.id);
+        return `
+      <tr>
+        <td>
+          <div class="stu-cell">
+            <div class="stu-avatar ${getAvatarClass(s.name)}">${getInitials(s.name)}</div>
+            <div><div class="stu-name">${s.name}</div><div class="stu-code">${s.student_code}</div></div>
+          </div>
+        </td>
+        <td><span class="pill pill-${s.gender.toLowerCase()}">${s.gender}</span></td>
+        <td style="font-size:.85rem">${s.age}</td>
+        <td style="font-size:.8rem;color:var(--text-muted)">${formatDate(s.dob)}</td>
+        <td><span style="font-size:.82rem" class="khmer">${c.name || '—'}</span></td>
+        <td style="font-size:.82rem;color:var(--text-muted)">${s.parent_name}</td>
+        <td>
+          ${sc
+            ? `<span class="${getScoreClass(sc.total)}" style="font-weight:700">${sc.total.toFixed(1)}</span>`
+            : `<span style="color:var(--text-muted);font-size:.8rem">No score</span>`
+          }
+        </td>
+        <td>${sc ? `<span class="badge-grade grade-${sc.grade}">${sc.grade}</span>` : '—'}</td>
+        <td><span class="pill pill-${s.status}">${s.status}</span></td>
+        <td>
+          <div style="display:flex;gap:.3rem">
+            <button class="btn-icon edit" title="Edit" onclick="openEditStudent(${s.id})"><i class="bi bi-pencil"></i></button>
+            <button class="btn-icon" title="Scores" onclick="openScoreModal(${s.id})" style="color:var(--accent-darker)"><i class="bi bi-bar-chart"></i></button>
+            <button class="btn-icon" title="Report Card" onclick="openReport(${s.id})"><i class="bi bi-file-earmark-text"></i></button>
+            <button class="btn-icon danger" title="Delete" onclick="deleteStudent(${s.id})"><i class="bi bi-trash"></i></button>
+          </div>
+        </td>
+      </tr>
+    `;
+      }).join('');
+
+      const pagination = buildPagination(studPage, pages, p => { studPage = p; updateStudentTable(); });
+
+      return `
+    <table class="sms-table">
+      <thead><tr>
+        <th>Student</th><th>Gender</th><th>Age</th><th>DOB</th><th>Course</th>
+        <th>Parent</th><th>Score</th><th>Grade</th><th>Status</th><th>Actions</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div style="padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;border-top:1px solid var(--border)">
+      <span style="font-size:.8rem;color:var(--text-muted)">
+        Showing ${(studPage - 1) * STUD_PER_PAGE + 1}–${Math.min(studPage * STUD_PER_PAGE, total)} of ${total}
+      </span>
+      ${pagination}
+    </div>
+  `;
+    }
+
+    function updateStudentTable() {
+      document.getElementById('studentTableWrap').innerHTML = buildStudentTable();
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       STUDENT MODAL (Add / Edit)
+    ═══════════════════════════════════════════════════════════ */
+    function openAddStudent() {
+      document.getElementById('studentModalTitle').textContent = 'Add New Student';
+      document.getElementById('studentModalBody').innerHTML = buildStudentForm(null);
+      openModal('studentModal');
+    }
+
+    function openEditStudent(id) {
+      const s = DB.students.find(s => s.id === id);
+      if (!s) return;
+      document.getElementById('studentModalTitle').textContent = `Edit — ${s.name}`;
+      document.getElementById('studentModalBody').innerHTML = buildStudentForm(s);
+      openModal('studentModal');
+    }
+
+    function buildStudentForm(s) {
+      const v = s || {};
+      return `
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label-sms">Full Name *</label>
+        <input class="form-control-sms" id="sf_name" value="${v.name || ''}">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label-sms">Gender *</label>
+        <select class="form-select-sms" id="sf_gender">
+          <option value="">— Select —</option>
+          ${['Male', 'Female', 'Other'].map(g => `<option ${v.gender === g ? 'selected' : ''}>${g}</option>`).join('')}
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label-sms">Age *</label>
+        <input type="number" class="form-control-sms" id="sf_age" value="${v.age || ''}" min="4" max="30">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label-sms">Date of Birth *</label>
+        <input type="date" class="form-control-sms" id="sf_dob" value="${v.dob || ''}">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label-sms">Place of Birth *</label>
+        <input class="form-control-sms" id="sf_pob" value="${v.pob || ''}">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label-sms">Parent Name *</label>
+        <input class="form-control-sms" id="sf_parent_name" value="${v.parent_name || ''}">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label-sms">Parent Phone *</label>
+        <input class="form-control-sms" id="sf_parent_phone" value="${v.parent_phone || ''}">
+      </div>
+      <div class="col-md-12">
+        <label class="form-label-sms">Course *</label>
+        <select class="form-select-sms" id="sf_course">
+          <option value="">— Select Course —</option>
+          ${DB.courses.map(c => `<option value="${c.id}" ${v.course_id == c.id ? 'selected' : ''}>${c.name}</option>`).join('')}
+        </select>
+      </div>
+      <div class="col-md-12" style="border-top:1px solid var(--border);padding-top:1rem;margin-top:.5rem">
+        <p style="font-size:.8rem;color:var(--text-muted);margin-bottom:.75rem"><i class="bi bi-key"></i> Login Account (optional)</p>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label-sms">Username</label>
+        <input class="form-control-sms" id="sf_username" value="${v.username || ''}" placeholder="Leave blank = no login">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label-sms">Password ${s ? '(leave blank to keep)' : ''}</label>
+        <input type="password" class="form-control-sms" id="sf_password" placeholder="${s ? 'New password…' : 'Set password…'}">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label-sms">Status</label>
+        <select class="form-select-sms" id="sf_status">
+          <option value="active" ${(!s || v.status === 'active') ? 'selected' : ''}>Active</option>
+          <option value="inactive" ${v.status === 'inactive' ? 'selected' : ''}>Inactive</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer" style="margin: 1rem -1.5rem -1.5rem;border-radius:0 0 16px 16px">
+      <button class="btn-ghost" onclick="closeModal('studentModal')">Cancel</button>
+      <button class="btn-primary-sms" onclick="saveStudent(${s ? s.id : 'null'})">
+        <i class="bi bi-check-lg"></i> ${s ? 'Save Changes' : 'Add Student'}
+      </button>
+    </div>
+  `;
+    }
+
+    function saveStudent(id) {
+      const name = document.getElementById('sf_name').value.trim();
+      const gender = document.getElementById('sf_gender').value;
+      const age = parseInt(document.getElementById('sf_age').value);
+      const dob = document.getElementById('sf_dob').value;
+      const pob = document.getElementById('sf_pob').value.trim();
+      const pname = document.getElementById('sf_parent_name').value.trim();
+      const pphone = document.getElementById('sf_parent_phone').value.trim();
+      const cid = parseInt(document.getElementById('sf_course').value);
+      const uname = document.getElementById('sf_username').value.trim();
+      const pass = document.getElementById('sf_password').value;
+      const status = document.getElementById('sf_status').value;
+
+      if (!name || !gender || !age || !dob || !pob || !pname || !pphone || !cid)
+        return toast('Please fill all required fields (*)', 'error');
+
+      DB = loadStore();
+
+      if (id) {
+        const idx = DB.students.findIndex(s => s.id === id);
+        DB.students[idx] = {
+          ...DB.students[idx], name, gender, age, dob, pob,
+          parent_name: pname, parent_phone: pphone, course_id: cid, status,
+          username: uname || DB.students[idx].username
+        };
+        toast('Student updated successfully', 'success');
+      } else {
+        const newId = nextId('student');
+        DB.students.push({
+          id: newId, student_code: `STU-${String(newId).padStart(4, '0')}`,
+          name, gender, age, dob, pob, parent_name: pname, parent_phone: pphone,
+          course_id: cid, username: uname || null, status
+        });
+        // Create user account
+        if (uname && pass) {
+          const uid = nextId('user');
+          DB.users.push({ id: uid, username: uname, password: pass, role: 'student', student_id: newId });
+        }
+        toast('Student added successfully', 'success');
+      }
+
+      saveStore(DB);
+      closeModal('studentModal');
+      updateStudentTable();
+    }
+
+    function deleteStudent(id) {
+      const s = DB.students.find(s => s.id === id);
+      if (!s) return;
+      document.getElementById('confirmMsg').textContent = `Delete ${s.name} (${s.student_code})? This will also remove all score records.`;
+      document.getElementById('confirmBtn').onclick = () => {
+        DB = loadStore();
+        DB.students = DB.students.filter(s => s.id !== id);
+        DB.scores = DB.scores.filter(s => s.student_id !== id);
+        saveStore(DB);
+        closeModal('confirmModal');
+        updateStudentTable();
+        toast('Student deleted', 'warning');
+      };
+      openModal('confirmModal');
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       SCORES PAGE
+    ═══════════════════════════════════════════════════════════ */
+    let scoreSearch = '', scoreStudPage = 1;
+
+    function renderScores() {
+      return `
+    <div class="card mb-3">
+      <div class="card-header">
+        <span class="card-title">Score Management</span>
+        <div style="display:flex;gap:.6rem;align-items:center">
+          <div class="search-bar">
+            <i class="bi bi-search search-icon"></i>
+            <input type="text" placeholder="Search student…" value="${scoreSearch}"
+              oninput="scoreSearch=this.value;scoreStudPage=1;updateScoresTable()">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div id="scoresTableWrap">${buildScoresTable()}</div>
+    </div>
+  `;
+    }
+
+    function buildScoresTable() {
+      const q = scoreSearch.toLowerCase();
+      let filtered = DB.students.filter(s =>
+        !q || s.name.toLowerCase().includes(q) || s.student_code.toLowerCase().includes(q)
+      );
+
+      const total = filtered.length;
+      const pages = Math.ceil(total / STUD_PER_PAGE) || 1;
+      if (scoreStudPage > pages) scoreStudPage = pages;
+      const paged = filtered.slice((scoreStudPage - 1) * STUD_PER_PAGE, scoreStudPage * STUD_PER_PAGE);
+
+      if (!paged.length) return `<div class="empty-state"><i class="bi bi-bar-chart"></i><p>No students</p></div>`;
+
+      const rows = paged.map(s => {
+        const c = getCourse(s.course_id);
+        const sc = getLatestScore(s.id);
+        const type = SCORE_TYPES[c.score_type] || { fields: [] };
+        return `
+      <tr>
+        <td>
+          <div class="stu-cell">
+            <div class="stu-avatar ${getAvatarClass(s.name)}">${getInitials(s.name)}</div>
+            <div><div class="stu-name">${s.name}</div><div class="stu-code">${s.student_code}</div></div>
+          </div>
+        </td>
+        <td><span class="khmer" style="font-size:.82rem">${c.name || '—'}</span></td>
+        <td>
+          <div style="font-size:.75rem;color:var(--text-muted)">
+            ${type.fields.map(f => `${f.label}(${f.max})`).join(' + ')}
+          </div>
+        </td>
+        <td>
+          ${sc ? `
+            <div style="font-weight:700;font-size:1rem" class="${getScoreClass(sc.total)}">${sc.total.toFixed(1)} <span style="font-size:.7rem;font-weight:400;color:var(--text-muted)">/50</span></div>
+            <div style="font-size:.75rem;color:var(--text-muted)">${sc.week_label}</div>
+          ` : `<span style="color:var(--text-muted);font-size:.82rem">No scores yet</span>`}
+        </td>
+        <td>${sc ? `<span class="badge-grade grade-${sc.grade}">${sc.grade}</span>` : '—'}</td>
+        <td>
+          <div style="display:flex;gap:.3rem">
+            <button class="btn-icon edit" onclick="openScoreModal(${s.id})" title="Add/Edit Score"><i class="bi bi-plus-lg"></i></button>
+            <button class="btn-icon" onclick="openScoreHistory(${s.id})" title="Score History"><i class="bi bi-clock-history"></i></button>
+          </div>
+        </td>
+      </tr>
+    `;
+      }).join('');
+
+      const pagination = buildPagination(scoreStudPage, pages, p => { scoreStudPage = p; updateScoresTable(); });
+
+      return `
+    <table class="sms-table">
+      <thead><tr>
+        <th>Student</th><th>Course</th><th>Score Components</th><th>Latest Score</th><th>Grade</th><th>Actions</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div style="padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;border-top:1px solid var(--border)">
+      <span style="font-size:.8rem;color:var(--text-muted)">Showing ${Math.min((scoreStudPage - 1) * STUD_PER_PAGE + 1, total)}–${Math.min(scoreStudPage * STUD_PER_PAGE, total)} of ${total}</span>
+      ${pagination}
+    </div>
+  `;
+    }
+
+    function updateScoresTable() { document.getElementById('scoresTableWrap').innerHTML = buildScoresTable(); }
+
+    /* ── Score entry modal ── */
+    function openScoreModal(studentId) {
+      const s = DB.students.find(s => s.id === studentId);
+      if (!s) return;
+      const c = getCourse(s.course_id);
+      const type = SCORE_TYPES[c.score_type] || { fields: [] };
+
+      document.getElementById('scoreModalTitle').textContent = `Scores — ${s.name}`;
+      document.getElementById('scoreModalBody').innerHTML = `
+    <div style="background:var(--bg);border-radius:10px;padding:.8rem 1rem;margin-bottom:1rem;font-size:.85rem">
+      <span style="color:var(--text-muted)">Course:</span>
+      <span class="khmer" style="font-weight:600;margin-left:.4rem">${c.name}</span>
+    </div>
+
+    <div style="margin-bottom:1rem">
+      <label class="form-label-sms">Period / Week Label</label>
+      <input class="form-control-sms" id="sc_week" placeholder="e.g. Month 1, Week 3" value="Month ${getStudentScores(studentId).length + 1}">
+    </div>
+
+    ${type.fields.map(f => `
+      <div class="score-input-group">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem">
+          <div class="score-input-label">${f.label}</div>
+          <div class="score-max">Max: <strong>${f.max}</strong></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:.75rem">
+          <input type="range" class="score-slider" id="sc_${f.key}" min="0" max="${f.max}" step="0.5"
+            value="0" oninput="document.getElementById('sc_${f.key}_val').textContent=this.value;updateScoreTotal()">
+          <span id="sc_${f.key}_val" style="font-weight:700;min-width:2.5rem;text-align:right;font-size:1rem"
+            class="${f.max >= 20 ? 'score-good' : ''}">0</span>
+        </div>
+      </div>
+    `).join('')}
+
+    <div style="background:linear-gradient(135deg,var(--primary),var(--primary-light));border-radius:12px;padding:1rem;color:#fff;text-align:center;margin-top:.5rem">
+      <div style="font-size:.8rem;opacity:.7;margin-bottom:.2rem">Total Score</div>
+      <div id="scoreTotalDisplay" style="font-size:2rem;font-weight:700">0</div>
+      <div style="font-size:.75rem;opacity:.7">/ 50</div>
+      <div id="scoreGradeDisplay" style="margin-top:.3rem;font-size:1rem;font-weight:600"></div>
+    </div>
+
+    <div style="display:flex;gap:.75rem;justify-content:flex-end;margin-top:1.25rem">
+      <button class="btn-ghost" onclick="closeModal('scoreModal')">Cancel</button>
+      <button class="btn-primary-sms" onclick="saveScore(${studentId}, '${c.score_type}')">
+        <i class="bi bi-check-lg"></i> Save Score
+      </button>
+    </div>
+  `;
+      openModal('scoreModal');
+    }
+
+    function updateScoreTotal() {
+      const fields = ['attendance', 'homework', 'worksheet', 'voice_message', 'monthly_test'];
+      let total = 0;
+      fields.forEach(f => {
+        const el = document.getElementById('sc_' + f);
+        if (el) total += parseFloat(el.value) || 0;
+      });
+      const g = getGrade(total);
+      const el = document.getElementById('scoreTotalDisplay');
+      if (el) el.textContent = total.toFixed(1);
+      const ge = document.getElementById('scoreGradeDisplay');
+      if (ge) ge.textContent = `Grade: ${g}`;
+    }
+
+    function saveScore(studentId, scoreType) {
+      const week = document.getElementById('sc_week').value.trim();
+      if (!week) return toast('Please enter a period label', 'error');
+
+      const fields = SCORE_TYPES[scoreType]?.fields || [];
+      const entry = {
+        id: nextId('score'), student_id: studentId, week_label: week,
+        attendance: null, homework: null, worksheet: null, voice_message: null, monthly_test: null
+      };
+
+      for (const f of fields) {
+        const val = parseFloat(document.getElementById('sc_' + f.key)?.value || 0);
+        if (val > f.max) return toast(`${f.label} cannot exceed ${f.max}`, 'error');
+        entry[f.key] = val;
+      }
+
+      DB = loadStore();
+      DB.scores.push(entry);
+      saveStore(DB);
+      closeModal('scoreModal');
+      updateScoresTable();
+      toast('Score saved successfully', 'success');
+    }
+
+    function openScoreHistory(studentId) {
+      const s = DB.students.find(s => s.id === studentId);
+      const scores = getStudentScores(studentId);
+      const c = getCourse(s.course_id);
+
+      document.getElementById('scoreModalTitle').textContent = `Score History — ${s.name}`;
+      document.getElementById('scoreModalBody').innerHTML = `
+    <div style="font-size:.83rem;color:var(--text-muted);margin-bottom:1rem" class="khmer">Course: ${c.name}</div>
+    ${scores.length ? `
+      <div class="table-wrapper">
+        <table class="sms-table">
+          <thead><tr>
+            <th>Period</th>
+            ${(SCORE_TYPES[c.score_type]?.fields || []).map(f => `<th>${f.label}<br><span style="font-weight:400;opacity:.6">/${f.max}</span></th>`).join('')}
+            <th>Total</th><th>Grade</th><th></th>
+          </tr></thead>
+          <tbody>
+          ${scores.map(sc => `
+            <tr>
+              <td style="font-weight:500">${sc.week_label}</td>
+              ${(SCORE_TYPES[c.score_type]?.fields || []).map(f => `<td>${sc[f.key] ?? '—'}</td>`).join('')}
+              <td><strong class="${getScoreClass(sc.total)}">${sc.total.toFixed(1)}</strong></td>
+              <td><span class="badge-grade grade-${sc.grade}">${sc.grade}</span></td>
+              <td>
+                <button class="btn-icon danger" onclick="deleteScore(${sc.id},${studentId})" title="Delete">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </td>
+            </tr>
+          `).join('')}
+          </tbody>
+        </table>
+      </div>
+    ` : `<div class="empty-state" style="padding:2rem"><i class="bi bi-bar-chart"></i><p>No scores recorded yet</p></div>`}
+    <div style="margin-top:1rem;text-align:right">
+      <button class="btn-primary-sms" onclick="closeModal('scoreModal');openScoreModal(${studentId})">
+        <i class="bi bi-plus-lg"></i> Add New Score
+      </button>
+    </div>
+  `;
+      openModal('scoreModal');
+    }
+
+    function deleteScore(scoreId, studentId) {
+      DB = loadStore();
+      DB.scores = DB.scores.filter(s => s.id !== scoreId);
+      saveStore(DB);
+      openScoreHistory(studentId);
+      toast('Score entry deleted', 'warning');
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       COURSES PAGE
+    ═══════════════════════════════════════════════════════════ */
+    function renderCourses() {
+      return `
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+      <span style="color:var(--text-muted);font-size:.9rem">${DB.courses.length} courses available</span>
+      <button class="btn-primary-sms" onclick="openAddCourse()"><i class="bi bi-plus-lg"></i> Add Course</button>
+    </div>
+    <div class="row g-3" id="courseCards">
+      ${DB.courses.map(c => {
+        const cnt = DB.students.filter(s => s.course_id === c.id && s.status === 'active').length;
+        const type = SCORE_TYPES[c.score_type]?.fields || [];
+        return `
+          <div class="col-md-6 col-lg-4">
+            <div class="card h-100">
+              <div class="card-body">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.75rem">
+                  <div style="width:44px;height:44px;border-radius:12px;background:${c.color}22;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0">
+                    📚
+                  </div>
+                  <div style="display:flex;gap:.4rem">
+                    <button class="btn-icon edit" onclick="openEditCourse(${c.id})"><i class="bi bi-pencil"></i></button>
+                    <button class="btn-icon danger" onclick="deleteCourse(${c.id})"><i class="bi bi-trash"></i></button>
+                  </div>
+                </div>
+                <div class="khmer" style="font-weight:700;font-size:.95rem;color:var(--text);margin-bottom:.3rem">${c.name}</div>
+                <div style="font-size:.75rem;color:var(--text-muted);background:var(--bg);padding:.3rem .6rem;border-radius:6px;display:inline-block;margin-bottom:.8rem">${c.score_type}</div>
+                <div style="display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.9rem">
+                  ${type.map(f => `
+                    <span style="font-size:.72rem;padding:.2rem .5rem;border-radius:6px;background:${c.color}18;color:${c.color};font-weight:500">
+                      ${f.label} /${f.max}
+                    </span>
+                  `).join('')}
+                </div>
+                <div style="display:flex;align-items:center;gap:.4rem;font-size:.82rem;color:var(--text-muted)">
+                  <i class="bi bi-people"></i> <strong style="color:var(--text)">${cnt}</strong> active students
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+    }
+
+    function openAddCourse() {
+      document.getElementById('courseModalTitle').textContent = 'Add Course';
+      document.getElementById('courseModalBody').innerHTML = buildCourseForm(null);
+      openModal('courseModal');
+    }
+
+    function openEditCourse(id) {
+      const c = DB.courses.find(c => c.id === id);
+      document.getElementById('courseModalTitle').textContent = 'Edit Course';
+      document.getElementById('courseModalBody').innerHTML = buildCourseForm(c);
+      openModal('courseModal');
+    }
+
+    function buildCourseForm(c) {
+      const v = c || {};
+      return `
+    <div style="display:flex;flex-direction:column;gap:1rem">
+      <div>
+        <label class="form-label-sms">Course Name *</label>
+        <input class="form-control-sms khmer" id="cf_name" value="${v.name || ''}" placeholder="e.g. The Vocabulary">
+      </div>
+      <div>
+        <label class="form-label-sms">Score Type *</label>
+        <select class="form-select-sms" id="cf_type">
+          ${Object.keys(SCORE_TYPES).map(t => `<option value="${t}" ${v.score_type === t ? 'selected' : ''}>${t}</option>`).join('')}
+        </select>
+      </div>
+      <div style="display:flex;gap:.75rem;justify-content:flex-end">
+        <button class="btn-ghost" onclick="closeModal('courseModal')">Cancel</button>
+        <button class="btn-primary-sms" onclick="saveCourse(${c ? c.id : 'null'})">
+          <i class="bi bi-check-lg"></i> Save
+        </button>
+      </div>
+    </div>
+  `;
+    }
+
+    function saveCourse(id) {
+      const name = document.getElementById('cf_name').value.trim();
+      const type = document.getElementById('cf_type').value;
+      if (!name) return toast('Course name is required', 'error');
+
+      DB = loadStore();
+      if (id) {
+        const idx = DB.courses.findIndex(c => c.id === id);
+        DB.courses[idx] = { ...DB.courses[idx], name, score_type: type };
+        toast('Course updated', 'success');
+      } else {
+        const newId = Math.max(0, ...DB.courses.map(c => c.id)) + 1;
+        DB.courses.push({ id: newId, name, score_type: type, color: COURSES[newId % COURSES.length]?.color || '#637085' });
+        toast('Course added', 'success');
+      }
+      saveStore(DB);
+      closeModal('courseModal');
+      navigate('courses');
+    }
+
+    function deleteCourse(id) {
+      const cnt = DB.students.filter(s => s.course_id === id).length;
+      if (cnt > 0) return toast(`Cannot delete: ${cnt} student(s) enrolled`, 'error');
+      document.getElementById('confirmMsg').textContent = 'Delete this course?';
+      document.getElementById('confirmBtn').onclick = () => {
+        DB.courses = DB.courses.filter(c => c.id !== id);
+        saveStore(DB);
+        closeModal('confirmModal');
+        navigate('courses');
+        toast('Course deleted', 'warning');
+      };
+      openModal('confirmModal');
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       REPORTS PAGE
+    ═══════════════════════════════════════════════════════════ */
+    function renderReports() {
+      const allScores = DB.students.map(s => getLatestScore(s.id)).filter(Boolean);
+      const avg = allScores.length ? (allScores.reduce((a, s) => a + s.total, 0) / allScores.length).toFixed(1) : 0;
+
+      return `
+    <div class="row g-3 mb-4">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title"><i class="bi bi-graph-up-arrow text-accent me-2"></i>Performance Overview</span>
+          </div>
+          <div class="card-body">
+            <div class="chart-container" style="height:280px">
+              <canvas id="reportLineChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title"><i class="bi bi-file-earmark-person text-accent me-2"></i>All Student Report Cards</span>
+        <div style="display:flex;gap:.5rem">
+          <button class="btn-accent" onclick="exportAllPDF()"><i class="bi bi-download"></i> Export All</button>
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table class="sms-table">
+          <thead><tr>
+            <th>Student</th><th>Course</th><th>Latest Score</th><th>Grade</th><th>Entries</th><th>Report</th>
+          </tr></thead>
+          <tbody>
+            ${DB.students.map(s => {
+        const c = getCourse(s.course_id);
+        const sc = getLatestScore(s.id);
+        const cnt = getStudentScores(s.id).length;
+        return `
+                <tr>
+                  <td>
+                    <div class="stu-cell">
+                      <div class="stu-avatar ${getAvatarClass(s.name)}">${getInitials(s.name)}</div>
+                      <div><div class="stu-name">${s.name}</div><div class="stu-code">${s.student_code}</div></div>
+                    </div>
+                  </td>
+                  <td class="khmer" style="font-size:.82rem">${c.name || '—'}</td>
+                  <td>${sc ? `<strong class="${getScoreClass(sc.total)}">${sc.total.toFixed(1)}</strong>` : '—'}</td>
+                  <td>${sc ? `<span class="badge-grade grade-${sc.grade}">${sc.grade}</span>` : '—'}</td>
+                  <td style="font-size:.85rem;color:var(--text-muted)">${cnt} entries</td>
+                  <td>
+                    <button class="btn-icon edit" onclick="openReport(${s.id})" title="View Report Card">
+                      <i class="bi bi-file-earmark-text"></i>
+                    </button>
+                  </td>
+                </tr>
+              `;
+      }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+    }
+
+    function initReportChart() {
+      const labels = DB.students.map(s => s.name.split(' ')[0]);
+      const data = DB.students.map(s => { const sc = getLatestScore(s.id); return sc ? sc.total : 0; });
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const gridCol = isDark ? 'rgba(255,255,255,.06)' : 'rgba(0,0,0,.06)';
+      const textCol = isDark ? '#8faac2' : '#637085';
+
+      const ctx = document.getElementById('reportLineChart');
+      if (!ctx) return;
+
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Latest Score',
+            data,
+            borderColor: '#2a5298',
+            backgroundColor: 'rgba(42,82,152,.1)',
+            borderWidth: 2.5,
+            tension: .4,
+            fill: true,
+            pointBackgroundColor: data.map(v => v >= 45 ? '#1b9e6e' : v >= 35 ? '#e8a020' : '#d94040'),
+            pointRadius: 6,
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { color: gridCol }, ticks: { color: textCol, font: { size: 11 } } },
+            y: {
+              min: 0, max: 50, grid: { color: gridCol }, ticks: { color: textCol },
+              title: { display: true, text: 'Score /50', color: textCol }
+            }
+          }
+        }
+      });
+    }
+
+    /* ── Report Card modal ── */
+    function openReport(studentId) {
+      const s = DB.students.find(s => s.id === studentId);
+      const c = getCourse(s.course_id);
+      const scores = getStudentScores(studentId);
+      const latest = scores[0];
+      const avg = scores.length ? (scores.reduce((a, sc) => a + sc.total, 0) / scores.length).toFixed(1) : 0;
+
+      document.getElementById('reportModalBody').innerHTML = buildReportCard(s, c, scores, latest, avg);
+      openModal('reportModal');
+    }
+
+    function buildReportCard(s, c, scores, latest, avg) {
+      return `
+    <div id="reportPrintContent">
+      <!-- Header -->
+      <div style="text-align:center;padding:1.5rem;background:linear-gradient(135deg,#0f2744,#1a3a5c);border-radius:12px;color:#fff;margin-bottom:1.5rem">
+        <div style="font-size:2rem;margin-bottom:.5rem">🎓</div>
+        <div style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700">EduTrack School</div>
+        <div style="font-size:.8rem;opacity:.6;margin-top:.25rem">Official Student Report Card</div>
+        <div style="margin-top:.75rem;padding:.4rem .9rem;background:rgba(232,160,32,.2);border:1px solid rgba(232,160,32,.4);border-radius:20px;display:inline-block;font-size:.8rem">
+          Academic Period ${new Date().getFullYear()}
+        </div>
+      </div>
+
+      <!-- Student Info -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem">
+        <div class="card">
+          <div class="card-body" style="padding:1rem">
+            <div style="font-size:.75rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem">Student Information</div>
+            ${[
+          ['Name', s.name],
+          ['ID', s.student_code],
+          ['Gender', s.gender],
+          ['Date of Birth', formatDate(s.dob)],
+          ['Place of Birth', s.pob],
+        ].map(([k, v]) => `
+              <div style="display:flex;justify-content:space-between;font-size:.84rem;padding:.3rem 0;border-bottom:1px solid var(--border)">
+                <span style="color:var(--text-muted)">${k}:</span>
+                <span style="font-weight:500;color:var(--text)">${v}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-body" style="padding:1rem">
+            <div style="font-size:.75rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem">Academic Info</div>
+            ${[
+          ['Course', `<span class="khmer">${c.name || '—'}</span>`],
+          ['Parent', s.parent_name],
+          ['Phone', s.parent_phone],
+          ['Average Score', `<strong class="${getScoreClass(avg)}">${avg} / 50</strong>`],
+          ['Overall Grade', `<span class="badge-grade grade-${getGrade(avg)}">${getGrade(avg)}</span>`],
+        ].map(([k, v]) => `
+              <div style="display:flex;justify-content:space-between;align-items:center;font-size:.84rem;padding:.3rem 0;border-bottom:1px solid var(--border)">
+                <span style="color:var(--text-muted)">${k}:</span>
+                <span style="font-weight:500;color:var(--text)">${v}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+
+      <!-- Score history -->
+      <div class="card mb-3">
+        <div class="card-header"><span class="card-title">Score History</span></div>
+        <div class="table-wrapper">
+          <table class="sms-table">
+            <thead><tr>
+              <th>Period</th>
+              ${(SCORE_TYPES[c.score_type]?.fields || []).map(f => `<th>${f.label} /${f.max}</th>`).join('')}
+              <th>Total /50</th><th>Grade</th>
+            </tr></thead>
+            <tbody>
+            ${scores.length ? scores.map(sc => `
+              <tr>
+                <td>${sc.week_label}</td>
+                ${(SCORE_TYPES[c.score_type]?.fields || []).map(f => `<td>${sc[f.key] ?? '—'}</td>`).join('')}
+                <td><strong class="${getScoreClass(sc.total)}">${sc.total.toFixed(1)}</strong></td>
+                <td><span class="badge-grade grade-${sc.grade}">${sc.grade}</span></td>
+              </tr>
+            `).join('') : `<tr><td colspan="10" class="empty-state" style="padding:1.5rem">No score records</td></tr>`}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Grade legend -->
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;font-size:.78rem;color:var(--text-muted)">
+        <strong>Grading Scale:</strong>
+        <span class="badge-grade grade-A">A</span> ≥45  &nbsp;
+        <span class="badge-grade grade-B">B</span> ≥40  &nbsp;
+        <span class="badge-grade grade-C">C</span> ≥35  &nbsp;
+        <span class="badge-grade grade-D">D</span> ≥25  &nbsp;
+        <span class="badge-grade grade-F">F</span> &lt;25
+      </div>
+    </div>
+  `;
+    }
+
+    function printReport() {
+      const content = document.getElementById('reportPrintContent').innerHTML;
+      const win = window.open('', '_blank');
+      win.document.write(`<!DOCTYPE html><html><head>
+    <meta charset="UTF-8">
+    <title>Report Card</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;600&family=Noto+Serif+Khmer:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+      *{box-sizing:border-box;margin:0;padding:0}
+      body{font-family:'DM Sans',sans-serif;padding:2rem;color:#1a2744;background:#fff}
+      .khmer{font-family:'Noto Serif Khmer',serif}
+      table{width:100%;border-collapse:collapse;font-size:.85rem}
+      th{background:#f0f4f8;padding:.6rem .8rem;text-align:left;font-size:.72rem;letter-spacing:.04em;text-transform:uppercase;color:#637085;border-bottom:1px solid #dde3ec}
+      td{padding:.7rem .8rem;border-bottom:1px solid #dde3ec}
+      .card{background:#fff;border:1px solid #dde3ec;border-radius:10px;overflow:hidden;margin-bottom:1rem}
+      .card-body{padding:1rem}
+      .card-header{padding:.9rem 1rem;border-bottom:1px solid #dde3ec;font-weight:600}
+      .badge-grade{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;font-weight:700;font-size:.8rem}
+      .grade-A{background:rgba(27,158,110,.15);color:#1b9e6e}
+      .grade-B{background:rgba(14,165,233,.15);color:#0ea5e9}
+      .grade-C{background:rgba(232,160,32,.15);color:#e8a020}
+      .grade-D{background:rgba(217,64,64,.12);color:#d94040}
+      .grade-F{background:rgba(100,100,100,.12);color:#888}
+      .score-excellent{color:#1b9e6e}.score-good{color:#0ea5e9}.score-avg{color:#e8a020}.score-low{color:#d94040}
+    </style>
+    </head><body>${content}</body></html>`);
+      win.document.close();
+      setTimeout(() => win.print(), 600);
+    }
+
+    function exportAllPDF() {
+      toast('Generating PDF export…', 'info');
+      setTimeout(() => toast('Open each student report card to print/save as PDF', 'info'), 1500);
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       ATTENDANCE PAGE
+    ═══════════════════════════════════════════════════════════ */
+    let attendDate = new Date().toISOString().split('T')[0];
+    const ATTEND_KEY = 'sms_attend_v1';
+
+    function loadAttend() {
+      try { return JSON.parse(localStorage.getItem(ATTEND_KEY)) || {}; } catch { return {}; }
+    }
+
+    function saveAttend(d) { localStorage.setItem(ATTEND_KEY, JSON.stringify(d)); }
+
+    function renderAttendance() {
+      return `
+    <div class="card mb-3">
+      <div class="card-header">
+        <span class="card-title"><i class="bi bi-calendar-check text-accent me-2"></i>Daily Attendance</span>
+        <input type="date" class="form-control-sms" style="width:auto"
+          value="${attendDate}" onchange="attendDate=this.value;updateAttendTable()">
+      </div>
+    </div>
+    <div class="card">
+      <div id="attendTableWrap">${buildAttendTable()}</div>
+    </div>
+  `;
+    }
+
+    function buildAttendTable() {
+      const records = loadAttend();
+      const dayRec = records[attendDate] || {};
+
+      const rows = DB.students.filter(s => s.status === 'active').map(s => {
+        const status = dayRec[s.id] || 'present';
+        const opts = ['present', 'absent', 'late', 'excused'];
+        const colors = { present: '#1b9e6e', absent: '#d94040', late: '#e8a020', excused: '#0ea5e9' };
+        return `
+      <tr>
+        <td>
+          <div class="stu-cell">
+            <div class="stu-avatar ${getAvatarClass(s.name)}">${getInitials(s.name)}</div>
+            <div><div class="stu-name">${s.name}</div><div class="stu-code">${s.student_code}</div></div>
+          </div>
+        </td>
+        <td class="khmer" style="font-size:.82rem">${getCourse(s.course_id).name || '—'}</td>
+        <td>
+          <div style="display:flex;gap:.4rem">
+            ${opts.map(o => `
+              <button onclick="markAttend(${s.id},'${o}')"
+                style="padding:.3rem .75rem;border-radius:20px;border:2px solid ${status === o ? colors[o] : 'var(--border)'};
+                  background:${status === o ? colors[o] + '22' : 'transparent'};
+                  color:${status === o ? colors[o] : 'var(--text-muted)'};
+                  font-size:.75rem;font-weight:600;cursor:pointer;transition:all .2s"
+              >${o.charAt(0).toUpperCase() + o.slice(1)}</button>
+            `).join('')}
+          </div>
+        </td>
+      </tr>
+    `;
+      }).join('');
+
+      // summary
+      const total = DB.students.filter(s => s.status === 'active').length;
+      const pCnt = Object.values(dayRec).filter(v => v === 'present').length;
+      const aCnt = Object.values(dayRec).filter(v => v === 'absent').length;
+
+      return `
+    <div style="display:flex;gap:1rem;padding:.8rem 1rem;background:var(--bg);flex-wrap:wrap">
+      <span style="font-size:.83rem;color:var(--text-muted)">Date: <strong style="color:var(--text)">${formatDate(attendDate)}</strong></span>
+      <span style="font-size:.83rem;color:#1b9e6e">✓ Present: <strong>${pCnt}</strong></span>
+      <span style="font-size:.83rem;color:#d94040">✗ Absent: <strong>${aCnt}</strong></span>
+      <span style="font-size:.83rem;color:var(--text-muted)">Total: <strong>${total}</strong></span>
+    </div>
+    <table class="sms-table">
+      <thead><tr><th>Student</th><th>Course</th><th>Attendance Status</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div style="padding:1rem;text-align:right">
+      <button class="btn-accent" onclick="saveAllAttend()"><i class="bi bi-check-all"></i> Save Attendance</button>
+    </div>
+  `;
+    }
+
+    function markAttend(studentId, status) {
+      const records = loadAttend();
+      if (!records[attendDate]) records[attendDate] = {};
+      records[attendDate][studentId] = status;
+      saveAttend(records);
+      updateAttendTable();
+    }
+
+    function saveAllAttend() {
+      toast('Attendance saved for ' + formatDate(attendDate), 'success');
+    }
+
+    function updateAttendTable() { document.getElementById('attendTableWrap').innerHTML = buildAttendTable(); }
+
+    /* ═══════════════════════════════════════════════════════════
+       STUDENT SELF-VIEW PAGES
+    ═══════════════════════════════════════════════════════════ */
+    function getMyStudent() {
+      return DB.students.find(s => s.id === currentUser.student_id);
+    }
+
+    function renderMyProfile() {
+      const s = getMyStudent();
+      if (!s) return `<div class="empty-state"><i class="bi bi-person-x"></i><p>Profile not found</p></div>`;
+      const c = getCourse(s.course_id);
+      const sc = getLatestScore(s.id);
+
+      return `
+    <div class="row g-3">
+      <div class="col-md-4">
+        <div class="card text-center">
+          <div class="card-body" style="padding:2rem 1rem">
+            <div class="stu-avatar ${getAvatarClass(s.name)}" style="width:80px;height:80px;border-radius:20px;font-size:2rem;margin:0 auto 1rem">
+              ${getInitials(s.name)}
+            </div>
+            <div style="font-size:1.2rem;font-weight:700;color:var(--text)">${s.name}</div>
+            <div style="font-size:.85rem;color:var(--text-muted);margin:.25rem 0 .75rem">${s.student_code}</div>
+            <span class="pill pill-${s.status}">${s.status}</span>
+            ${sc ? `
+              <div style="margin-top:1rem;padding:1rem;background:var(--bg);border-radius:12px">
+                <div class="score-ring-wrap" style="margin:0 auto .5rem">
+                  <svg viewBox="0 0 120 120" width="120" height="120">
+                    <circle cx="60" cy="60" r="52" fill="none" stroke="var(--border)" stroke-width="10"/>
+                    <circle cx="60" cy="60" r="52" fill="none"
+                      stroke="${sc.total >= 45 ? '#1b9e6e' : sc.total >= 35 ? '#e8a020' : '#d94040'}"
+                      stroke-width="10" stroke-linecap="round"
+                      stroke-dasharray="${(sc.total / 50) * 326.7} 326.7"/>
+                  </svg>
+                  <div class="score-ring-text">
+                    <div class="score-ring-val ${getScoreClass(sc.total)}">${sc.total.toFixed(0)}</div>
+                    <div class="score-ring-max">/50</div>
+                  </div>
+                </div>
+                <div style="font-size:.8rem;color:var(--text-muted)">Latest Score</div>
+                <div style="margin-top:.4rem"><span class="badge-grade grade-${sc.grade}" style="width:auto;padding:.3rem .8rem">${sc.grade} — ${sc.grade === 'A' ? 'Excellent' : sc.grade === 'B' ? 'Good' : sc.grade === 'C' ? 'Average' : 'Needs Work'}</span></div>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      </div>
+      <div class="col-md-8">
+        <div class="card mb-3">
+          <div class="card-header"><span class="card-title">Personal Information</span></div>
+          <div class="card-body">
+            <div class="row g-3">
+              ${[
+          ['Date of Birth', formatDate(s.dob)],
+          ['Place of Birth', s.pob],
+          ['Age', s.age + ' years'],
+          ['Gender', s.gender],
+          ['Course', `<span class="khmer">${c.name || '—'}</span>`],
+          ['Username', s.username || '—'],
+        ].map(([k, v]) => `
+                <div class="col-sm-6">
+                  <div style="font-size:.75rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.25rem">${k}</div>
+                  <div style="font-size:.9rem;color:var(--text)">${v}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Parent / Guardian</span></div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-sm-6">
+                <div style="font-size:.75rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.25rem">Name</div>
+                <div style="font-size:.9rem;color:var(--text)">${s.parent_name}</div>
+              </div>
+              <div class="col-sm-6">
+                <div style="font-size:.75rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.25rem">Phone</div>
+                <div style="font-size:.9rem;color:var(--text)">${s.parent_phone}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+    }
+
+    function renderMyScores() {
+      const s = getMyStudent();
+      if (!s) return `<div class="empty-state"><i class="bi bi-bar-chart"></i><p>No data</p></div>`;
+      const c = getCourse(s.course_id);
+      const scores = getStudentScores(s.id);
+
+      return `
+    <div class="row g-3 mb-3">
+      ${scores.slice(0, 3).map(sc => `
+        <div class="col-sm-4">
+          <div class="stat-card ${sc.grade === 'A' ? 'green' : sc.grade === 'B' ? 'blue' : sc.grade <= 'D' ? 'red' : 'gold'}">
+            <div class="stat-value">${sc.total.toFixed(1)}</div>
+            <div class="stat-label">${sc.week_label}</div>
+            <div class="stat-change"><span class="badge-grade grade-${sc.grade}">${sc.grade}</span></div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="card mb-3">
+      <div class="card-header"><span class="card-title">Score Trend</span></div>
+      <div class="card-body"><div class="chart-container" style="height:200px"><canvas id="myScoreChart"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">All Score Entries</span></div>
+      <div class="table-wrapper">
+        <table class="sms-table">
+          <thead><tr>
+            <th>Period</th>
+            ${(SCORE_TYPES[c.score_type]?.fields || []).map(f => `<th>${f.label} /${f.max}</th>`).join('')}
+            <th>Total</th><th>Grade</th>
+          </tr></thead>
+          <tbody>
+          ${scores.length ? scores.map(sc => `
+            <tr>
+              <td style="font-weight:500">${sc.week_label}</td>
+              ${(SCORE_TYPES[c.score_type]?.fields || []).map(f => `<td>${sc[f.key] ?? '—'}</td>`).join('')}
+              <td><strong class="${getScoreClass(sc.total)}">${sc.total.toFixed(1)}</strong></td>
+              <td><span class="badge-grade grade-${sc.grade}">${sc.grade}</span></td>
+            </tr>
+          `).join('') : `<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--text-muted)">No scores yet</td></tr>`}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+    }
+
+    let _myChartInst = null;
+    function initMyScoreChart() {
+      const s = getMyStudent();
+      if (!s) return;
+      const scores = getStudentScores(s.id).reverse();
+      const ctx = document.getElementById('myScoreChart');
+      if (!ctx || !scores.length) return;
+
+      if (_myChartInst) { _myChartInst.destroy(); _myChartInst = null; }
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const gridCol = isDark ? 'rgba(255,255,255,.06)' : 'rgba(0,0,0,.06)';
+      const textCol = isDark ? '#8faac2' : '#637085';
+
+      _myChartInst = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: scores.map(s => s.week_label),
+          datasets: [{
+            label: 'Score',
+            data: scores.map(s => s.total),
+            borderColor: '#e8a020',
+            backgroundColor: 'rgba(232,160,32,.1)',
+            borderWidth: 2.5, tension: .4, fill: true,
+            pointBackgroundColor: '#e8a020', pointRadius: 5,
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { color: gridCol }, ticks: { color: textCol } },
+            y: { min: 0, max: 50, grid: { color: gridCol }, ticks: { color: textCol } }
+          }
+        }
+      });
+    }
+
+    function renderMyReport() {
+      const s = getMyStudent();
+      if (!s) return `<div class="empty-state"><i class="bi bi-file-earmark-x"></i><p>No data</p></div>`;
+      const c = getCourse(s.course_id);
+      const scores = getStudentScores(s.id);
+      const latest = scores[0];
+      const avg = scores.length ? (scores.reduce((a, sc) => a + sc.total, 0) / scores.length).toFixed(1) : 0;
+
+      return `
+    <div style="text-align:center;margin-bottom:1.5rem">
+      <button class="btn-accent" onclick="printMyReport()">
+        <i class="bi bi-printer"></i> Print / Save as PDF
+      </button>
+    </div>
+    <div id="myReportContent">
+      ${buildReportCard(s, c, scores, latest, avg)}
+    </div>
+  `;
+    }
+
+    function printMyReport() {
+      const content = document.getElementById('myReportContent').innerHTML;
+      const win = window.open('', '_blank');
+      win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>My Report</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;600&family=Noto+Serif+Khmer:wght@400;600&display=swap" rel="stylesheet">
+    <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'DM Sans',sans-serif;padding:2rem;color:#1a2744;background:#fff}.khmer{font-family:'Noto Serif Khmer',serif}table{width:100%;border-collapse:collapse}th{background:#f0f4f8;padding:.6rem .8rem;font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;color:#637085;border-bottom:1px solid #dde3ec}td{padding:.7rem .8rem;border-bottom:1px solid #dde3ec}.card{background:#fff;border:1px solid #dde3ec;border-radius:10px;overflow:hidden;margin-bottom:1rem}.card-body{padding:1rem}.card-header{padding:.9rem 1rem;border-bottom:1px solid #dde3ec;font-weight:600}.badge-grade{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;font-weight:700;font-size:.8rem}.grade-A{background:rgba(27,158,110,.15);color:#1b9e6e}.grade-B{background:rgba(14,165,233,.15);color:#0ea5e9}.grade-C{background:rgba(232,160,32,.15);color:#e8a020}.grade-D{background:rgba(217,64,64,.12);color:#d94040}.grade-F{background:rgba(100,100,100,.12);color:#888}.score-excellent{color:#1b9e6e}.score-good{color:#0ea5e9}.score-avg{color:#e8a020}.score-low{color:#d94040}
+    </style></head><body>${content}</body></html>`);
+      win.document.close();
+      setTimeout(() => win.print(), 600);
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       PARENT VIEW PAGES
+    ═══════════════════════════════════════════════════════════ */
+    function getParentStudent() {
+      return DB.students.find(s => s.id === currentUser.student_id);
+    }
+
+    function renderChildView() {
+      const s = getParentStudent();
+      if (!s) return `<div class="empty-state"><i class="bi bi-person-x"></i><p>No linked child found</p></div>`;
+      return renderMyProfile.call({ getMyStudent: getParentStudent });
+    }
+
+    function renderChildScores() {
+      const s = getParentStudent();
+      if (!s) return `<div class="empty-state"><i class="bi bi-bar-chart"></i><p>No data</p></div>`;
+      // Reuse student's score view
+      const savedUser = currentUser;
+      currentUser = { ...currentUser, student_id: s.id };
+      const html = renderMyScores();
+      currentUser = savedUser;
+      return html;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       PAGINATION HELPER
+    ═══════════════════════════════════════════════════════════ */
+    function buildPagination(current, total, onPageChange) {
+      if (total <= 1) return '';
+      let html = '<div class="pagination-sms">';
+
+      html += `<button class="page-btn" ${current === 1 ? 'disabled' : ''} onclick="(${onPageChange.toString()})(${current - 1})"><i class="bi bi-chevron-left"></i></button>`;
+
+      for (let i = 1; i <= total; i++) {
+        if (total > 7 && Math.abs(i - current) > 2 && i !== 1 && i !== total) {
+          if (i === 2 || i === total - 1) html += `<span style="color:var(--text-muted);padding:.4rem">…</span>`;
+          continue;
+        }
+        html += `<button class="page-btn ${i === current ? 'active' : ''}" onclick="(${onPageChange.toString()})(${i})">${i}</button>`;
+      }
+
+      html += `<button class="page-btn" ${current === total ? 'disabled' : ''} onclick="(${onPageChange.toString()})(${current + 1})"><i class="bi bi-chevron-right"></i></button>`;
+      html += '</div>';
+      return html;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       MODAL HELPERS
+    ═══════════════════════════════════════════════════════════ */
+    function openModal(id) {
+      document.getElementById(id).classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    // Close modal on overlay click
+    document.querySelectorAll('.modal-overlay').forEach(el => {
+      el.addEventListener('click', e => { if (e.target === el) closeModal(el.id); });
+    });
+
+    // Close modal on Escape
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay.open').forEach(el => closeModal(el.id));
+      }
+    });
+
+    /* ═══════════════════════════════════════════════════════════
+       TOAST NOTIFICATIONS
+    ═══════════════════════════════════════════════════════════ */
+    const TOAST_ICONS = { success: 'bi-check-circle-fill', error: 'bi-x-circle-fill', warning: 'bi-exclamation-triangle-fill', info: 'bi-info-circle-fill' };
+
+    function toast(msg, type = 'info', duration = 3500) {
+      const container = document.getElementById('toastContainer');
+      const el = document.createElement('div');
+      el.className = `toast-item toast-${type}`;
+      el.innerHTML = `<i class="bi ${TOAST_ICONS[type] || TOAST_ICONS.info} toast-icon"></i><span>${msg}</span>`;
+      container.appendChild(el);
+      setTimeout(() => {
+        el.classList.add('exit');
+        setTimeout(() => el.remove(), 300);
+      }, duration);
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       DARK MODE
+    ═══════════════════════════════════════════════════════════ */
+    function toggleDark() {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+      localStorage.setItem('sms_theme', isDark ? 'light' : 'dark');
+      document.getElementById('darkToggleBtn').innerHTML = isDark ? '<i class="bi bi-moon-fill"></i>' : '<i class="bi bi-sun-fill"></i>';
+      // Refresh charts if on dashboard/reports
+      if (['dashboard', 'reports', 'my-scores'].includes(currentPage)) {
+        setTimeout(() => renderPage(currentPage), 100);
+      }
+    }
+
+    // Apply saved theme on load
+    (function () {
+      const t = localStorage.getItem('sms_theme') || 'light';
+      document.documentElement.setAttribute('data-theme', t);
+      if (t === 'dark') {
+        document.addEventListener('DOMContentLoaded', () => {
+          const btn = document.getElementById('darkToggleBtn');
+          if (btn) btn.innerHTML = '<i class="bi bi-sun-fill"></i>';
+        });
+      }
+    })();
+
+    /* ═══════════════════════════════════════════════════════════
+       SIDEBAR MOBILE
+    ═══════════════════════════════════════════════════════════ */
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+      document.getElementById('sidebarOverlay').classList.toggle('open');
+    }
+
+    function closeSidebar() {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('sidebarOverlay').classList.remove('open');
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       RESET (dev helper)
+    ═══════════════════════════════════════════════════════════ */
+    function resetData() {
+      localStorage.removeItem(STORE_KEY);
+      DB = loadStore();
+      toast('Data reset to defaults', 'info');
+    }
+  </script>
+</body>
+
+</html>
