@@ -34,7 +34,7 @@ if ($action === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         'uid'      => $user['id'],
         'username' => $user['username'],
         'role'     => $user['role'],
-        'sid'      => $user['student_db_id'],   // null for admin
+        'sid'      => $user['student_db_id'],
     ]);
 
     json_ok([
@@ -42,6 +42,7 @@ if ($action === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         'role'     => $user['role'],
         'username' => $user['username'],
         'name'     => $user['student_name'] ?? $user['username'],
+        'sid'      => $user['student_db_id'],
     ]);
 }
 
